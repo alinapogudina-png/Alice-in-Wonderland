@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alice Game Editor - ELT Workshop</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif; background-color: #1a1a2e; color: #e0e0e0;
+            display: flex; padding: 20px; gap: 30px; height: 100vh; margin: 0; box-sizing: border-box;
+        }
+        .editor-panel, .preview-panel {
+            background-color: #16213e; padding: 25px; border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .editor-panel { width: 50%; display: flex; flex-direction: column; overflow-y: auto; }
+        .preview-panel { width: 50%; display: flex; flex-direction: column; position: relative; padding-bottom: 40px;}
+        h1, h2 { color: #ff9a9e; text-shadow: 0 0 8px rgba(255, 154, 158, 0.6); margin-top: 0; text-align: center; }
+        h3 { color: #a1c4fd; font-size: 16px; margin-bottom: 10px; border-bottom: 1px solid #535c91; padding-bottom: 5px; margin-top: 25px;}
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 13px; color: #b3b3b3;}
+        input[type="url"], input[type="text"], input[type="number"], select, textarea {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #535c91;
+            background-color: #0f3460; color: #fff; box-sizing: border-box; font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+        }
+        input[type="range"] { width: 100%; accent-color: #ff9a9e; cursor: pointer; }
+        textarea { resize: vertical; min-height: 100px; white-space: pre; overflow-wrap: normal; overflow-x: auto;}
+        input[type="color"] { padding: 0; border: none; width: 40px; height: 30px; border-radius: 5px; cursor: pointer;}
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: #ff9a9e; cursor: pointer; }
+        
+        .flex-row { display: flex; gap: 15px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+        .color-group { display: flex; align-items: center; background: #0f3460; padding: 5px 12px; border-radius: 8px; border: 1px solid #535c91; gap: 10px; flex: 1; justify-content: center;}
+        
+        .round-box { background: rgba(0,0,0,0.25); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #535c91;}
+        .btn-outline { background: transparent; border: 2px dashed #ff9a9e; color: #ff9a9e; width: 100%; margin-top: 5px;}
+        .btn-outline:hover { background: rgba(255, 154, 158, 0.1); }
+        
+        #previewFrame { width: 100%; flex: 1; border: 1px solid #535c91; border-radius: 10px; background-color: transparent; }
+        button {
+            background: linear-gradient(90deg, #ff9a9e, #fecfef); color: #1a1a2e;
+            padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 14px; font-weight: 700; transition: 0.2s;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4); }
+        
+        #generated-code { height: 100px; margin-top: 10px; color: #a7d129; font-family: monospace; font-size: 11px;}
+        .copyright { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+    </style>
+</head>
+<body>
+
+    <div class="editor-panel">
+        <h1>Alice Game Editor</h1>
+        
+        <div class="flex-row">
+            <div class="form-group" style="flex:1;">
+                <label>Язык интерфейса</label>
+                <select id="uiLang" onchange="updateStartBtnText()">
+                    <option value="EN">English</option>
+                    <option value="RU">Русский</option>
+                    <option value="ES">Español</option>
+                    <option value="FR">Français</option>
+                    <option value="DE">Deutsch</option>
+                    <option value="IT">Italiano</option>
+                    <option value="PT">Português</option>
+                    <option value="PL">Polski</option>
+                    <option value="TR">Türkçe</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label>Текст кнопки СТАРТ</label>
+                <input type="text" id="startBtnText" value="START">
+            </div>
+        </div>
+
+        <div class="flex-row">
+            <div class="form-group" style="flex:1;">
+                <label>Скорость полета (сек. на полет)</label>
+                <input type="number" id="flySpeed" value="6" min="1" max="20" step="0.5">
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label>Таймер (сек на вопрос)</label>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" id="useTimer" checked>
+                    <input type="number" id="timeSec" value="15" min="3" max="120" style="width:100%;">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Фон игры (URL)</label>
+            <input type="url" id="bgUrl" value="https://i.postimg.cc/pdDZpkwN/e0ec6d9f9615e7750f927524ed25e6f8_6dfc6818_3c9b_49c3_9e24_1134d4c80b7c.jpg">
+        </div>
+
+        <div class="form-group">
+            <label>Артефакты (URLs, по одному в строке)</label>
+            <textarea id="artifactsUrls" style="min-height: 60px;">https://i.postimg.cc/V68KR2jZ/10.png
+https://i.postimg.cc/ydHLP2Fr/11.png
+https://i.postimg.cc/nzJ3kNvP/12.png
+https://i.postimg.cc/rmkfJ7Sb/5.png
+https://i.postimg.cc/SshgrH6b/6.png
+https://i.postimg.cc/cHSFmPRZ/7.png
+https://i.postimg.cc/pTHsZ3fR/8.png
+https://i.postimg.cc/DZTxgRrK/9.png</textarea>
+        </div>
+
+        <h3>Оформление текстов</h3>
+        <div class="flex-row">
+            <div class="color-group"><label>Цвет Вопроса</label><input type="color" id="qColor" value="#ffffff"></div>
+            <div class="color-group"><label>Цвет Ответов</label><input type="color" id="aColor" value="#ffffff"></div>
+            <div class="color-group">
+                <input type="checkbox" id="useGlow" checked> <label>Неон</label>
+                <input type="color" id="glowColor" value="#ff9a9e">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Размер шрифта ВОПРОСА: <span id="qSizeLbl">28</span>px</label>
+            <input type="range" id="qFontSize" min="16" max="60" value="28">
+        </div>
+        <div class="form-group">
+            <label>Размер шрифта ОТВЕТОВ: <span id="aSizeLbl">18</span>px</label>
+            <input type="range" id="aFontSize" min="12" max="40" value="18">
+        </div>
+
+        <h3>Раунды и Вопросы</h3>
+        <div class="flex-row" style="margin-bottom: 5px;">
+            <input type="checkbox" id="mixAnswers" checked>
+            <label style="margin:0; font-size:12px;">Авто-обманки (брать чужие правильные ответы, если не хватает своих)</label>
+        </div>
+        
+        <div id="roundsContainer"></div>
+        <button class="btn-outline" onclick="addRound()">+ Добавить раунд (Макс 5)</button>
+
+        <h3>Финал игры</h3>
+        <div class="form-group">
+            <label>Текст при победе</label>
+            <input type="text" id="winText" value="You are just in time!">ц
+        </div>
+        
+        <button id="copyBtn" onclick="copyCode()" style="width: 100%; margin-top:10px;">Сгенерировать и Скопировать код</button>
+        <textarea id="generated-code" readonly placeholder="Здесь появится готовый код для Genially..."></textarea>
+    </div>
+
+    <div class="preview-panel">
+        <h2>Предпросмотр</h2>
+        <iframe id="previewFrame" src="" frameborder="0" allow="autoplay"></iframe>
+        <p class="copyright">©2026 Alina Pogudina @ELT_workshop</p>
+    </div>
+
+    <script>
+        const startDict = { EN: "START", RU: "ИГРАТЬ", ES: "JUGAR", FR: "JOUER", DE: "START", IT: "INIZIA", PT: "JOGAR", PL: "START", TR: "BAŞLA" };
+        let roundCount = 0;
+
+        function updateStartBtnText() {
+            const lang = document.getElementById('uiLang').value;
+            document.getElementById('startBtnText').value = startDict[lang] || "START";
+            debounceGenerate();
+        }
+
+        document.getElementById('qFontSize').addEventListener('input', (e) => { document.getElementById('qSizeLbl').innerText = e.target.value; });
+        document.getElementById('aFontSize').addEventListener('input', (e) => { document.getElementById('aSizeLbl').innerText = e.target.value; });
+
+        function addRound() {
+            if (roundCount >= 5) { alert("Максимум 5 раундов!"); return; }
+            roundCount++;
+            const div = document.createElement('div');
+            div.className = 'round-box';
+            
+            let defaultQ = "What color is the sky?\nWhat color is the sun?\nHow many days in a week?\nWhich animal barks?";
+            let defaultA = "Blue | Red | Green | Yellow\nYellow | Purple\n7 | 5 | 10\nDog | Cat | Cow";
+            
+            if(roundCount > 1) { 
+                defaultQ = "Question 1\nQuestion 2"; 
+                defaultA = "Ans1 | W1 | W2\nAns2 | W3 | W4"; 
+            }
+
+            div.innerHTML = `
+                <div style="font-weight:700; color:#ff9a9e; margin-bottom:10px; display:flex; justify-content:space-between;">
+                    Раунд ${roundCount} 
+                    ${roundCount > 1 ? '<span style="color:#ff4757;cursor:pointer;font-size:12px;" onclick="this.parentElement.parentElement.remove(); roundCount--; debounceGenerate();">× Удалить</span>' : ''}
+                </div>
+                <div class="flex-row" style="align-items: flex-start;">
+                    <div class="form-group" style="flex:1; margin-bottom:0;">
+                        <label>ВОПРОСЫ (в столбик)</label>
+                        <textarea class="q-list">${defaultQ}</textarea>
+                    </div>
+                    <div class="form-group" style="flex:1.5; margin-bottom:0;">
+                        <label>ОТВЕТЫ (Прав | Нев | Нев)</label>
+                        <textarea class="a-list">${defaultA}</textarea>
+                    </div>
+                </div>
+            `;
+            document.getElementById('roundsContainer').appendChild(div);
+            div.querySelectorAll('textarea').forEach(el => el.addEventListener('input', debounceGenerate));
+            debounceGenerate();
+        }
+
+        function getInputs() {
+            let roundsData = [];
+            
+            document.querySelectorAll('.round-box').forEach(rb => {
+                let qLines = rb.querySelector('.q-list').value.split('\n').map(s=>s.trim()).filter(s=>s);
+                let aLines = rb.querySelector('.a-list').value.split('\n').map(s=>s.trim()).filter(s=>s);
+                
+                let gameQuestions = [];
+                let count = Math.min(qLines.length, aLines.length);
+                for(let i=0; i<count; i++) {
+                    let parts = aLines[i].split('|').map(s=>s.trim()).filter(s=>s);
+                    if(parts.length > 0) {
+                        gameQuestions.push({ q: qLines[i], c: parts[0], w: parts.slice(1) });
+                    }
+                }
+                if(gameQuestions.length > 0) roundsData.push(gameQuestions);
+            });
+
+            let artifactsRaw = document.getElementById('artifactsUrls').value.split('\n').map(s=>s.trim()).filter(s=>s);
+
+            return {
+                lang: document.getElementById('uiLang').value,
+                startText: document.getElementById('startBtnText').value,
+                speed: parseFloat(document.getElementById('flySpeed').value),
+                bgUrl: document.getElementById('bgUrl').value,
+                artifacts: artifactsRaw,
+                qColor: document.getElementById('qColor').value,
+                aColor: document.getElementById('aColor').value,
+                useGlow: document.getElementById('useGlow').checked,
+                glowColor: document.getElementById('glowColor').value,
+                qSize: document.getElementById('qFontSize').value,
+                aSize: document.getElementById('aFontSize').value,
+                useTimer: document.getElementById('useTimer').checked,
+                timeSec: parseInt(document.getElementById('timeSec').value) || 15,
+                mixAnswers: document.getElementById('mixAnswers').checked,
+                roundsData: roundsData,
+                winText: document.getElementById('winText').value
+            };
+        }
+
+        function generateCode() {
+            const conf = getInputs();
+            if(conf.roundsData.length === 0) conf.roundsData = [[{q:"Configure questions first!", c:"OK", w:["No"]}]];
+
+            const safeHtmlCode = `<!DOCTYPE html>
+<html lang="${conf.lang.toLowerCase()}">
+<head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap');
+    
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+    
+    #elt-al-app { position: absolute; top: 0; left: 0; right: 0; bottom: 0; font-family: 'Poppins', sans-serif; background: url('${conf.bgUrl}') center/cover no-repeat; user-select: none; box-sizing: border-box; }
+    #elt-al-app * { box-sizing: border-box; }
+
+    /* ОПУСТИЛИ ВНИЗ (top: 60px) чтобы заяц не обрезался */
+    .elt-top-bar { position: absolute; top: 60px !important; left: 30px; right: 15px; display: flex; justify-content: space-between; z-index: 10; pointer-events: none;}
+    .elt-panel { background: rgba(0,0,0,0.8) !important; padding: 6px 15px !important; border-radius: 15px !important; color: #fff !important; font-size: 16px !important; line-height: 1.2 !important; font-weight: 800 !important; border: 2px solid ${conf.useGlow ? conf.glowColor : '#fff'} !important; box-shadow: ${conf.useGlow ? `0 0 10px ${conf.glowColor}` : 'none'} !important; display:flex !important; align-items:center !important; gap: 8px !important;}
+    
+    /* ТАЙМЕР: Полоска прижата вправо, тает слева-направо */
+    .elt-timer-box { display: ${conf.useTimer ? 'flex' : 'none'} !important; align-items: center; width: 220px; max-width: 35vw;}
+    .elt-progress-bg { position: relative; flex: 1; height: 20px; background: rgba(255,255,255,0.2); border-radius: 5px; overflow: visible !important; display: flex !important; justify-content: flex-end !important; }
+    .elt-progress-bar { height: 100%; background: ${conf.glowColor}; width: 100%; transition: width 1s linear; border-radius: 5px; }
+    
+    /* ЗАЯЦ: увеличен (80px), бежит слева направо (отзеркален) */
+    .elt-rabbit { position: absolute; bottom: -8px; left: 0%; transform: translateX(-50%) scaleX(-1); width: 80px !important; height: auto !important; transition: left 1s linear; z-index: 15; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));}
+    
+    #elt-lives { font-size: 16px !important; line-height: 1 !important; letter-spacing: 2px !important; }
+
+    /* Центральная плашка РАУНДА */
+    #elt-al-round-banner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: #fff !important; padding: 20px 40px !important; border-radius: 20px !important; font-size: 40px !important; font-weight: 800 !important; text-align: center; z-index: 30; border: 3px solid ${conf.useGlow ? conf.glowColor : '#fff'} !important; box-shadow: ${conf.useGlow ? `0 0 30px ${conf.glowColor}` : 'none'} !important; text-shadow: ${conf.useGlow ? `0 0 15px ${conf.glowColor}` : 'none'} !important; transition: 0.3s; opacity: 0; pointer-events: none; }
+
+    /* Вопрос: Опущен ниже, чтобы не наехать на таймер */
+    #elt-al-q-banner { position: absolute; top: 80px !important; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: ${conf.qColor} !important; padding: 12px 25px !important; border-radius: 30px !important; font-size: ${conf.qSize}px !important; line-height: 1.2 !important; font-weight: 800 !important; text-align: center; max-width: 90%; z-index: 10; border: 2px solid ${conf.useGlow ? conf.glowColor : '#fff'} !important; box-shadow: ${conf.useGlow ? `0 0 20px ${conf.glowColor}` : 'none'} !important; text-shadow: ${conf.useGlow ? `0 0 8px ${conf.glowColor}` : 'none'} !important; transition: 0.3s; pointer-events: none; }
+
+    /* Алиса УВЕЛИЧЕННАЯ */
+    #elt-al-alice { position: absolute; right: 1%; top: 30%; width: 350px !important; max-width: 45vw !important; animation: aliceFloat 4s ease-in-out infinite; z-index: 5; pointer-events: none; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));}
+    @keyframes aliceFloat { 0%, 100% { transform: translateY(0) rotate(5deg); } 50% { transform: translateY(-40px) rotate(-5deg); } }
+
+    /* Артефакты */
+    #elt-al-playarea { position: absolute; top:0; left:0; right:0; bottom:0; z-index: 8; overflow: hidden;}
+    .elt-artifact-wrapper { position: absolute; bottom: -200px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s; pointer-events: auto; }
+    .elt-artifact-wrapper:hover { transform: scale(1.15); }
+    .elt-artifact-img { width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.6)); transition: 0.3s; }
+    
+    /* Ответы */
+    .elt-artifact-text { margin-top: 5px; background: rgba(0,0,0,0.85) !important; color: ${conf.aColor} !important; padding: 8px 16px !important; border-radius: 12px !important; font-size: ${conf.aSize}px !important; line-height: 1.2 !important; font-weight: 800 !important; text-align: center; border: 2px solid ${conf.useGlow ? conf.glowColor : '#fff'} !important; box-shadow: ${conf.useGlow ? `0 0 10px ${conf.glowColor}` : 'none'} !important; pointer-events: none; white-space: nowrap !important; min-width: 40px;}
+    
+    /* Анимация полета */
+    @keyframes floatUp { 
+        0% { transform: translateY(20vh); opacity: 0; }
+        5% { opacity: 1; }
+        100% { transform: translateY(-130vh); opacity: 1; } 
+    }
+    
+    /* Эффект взрыва */
+    .elt-explode .elt-artifact-img { transform: scale(2.2) rotate(15deg); opacity: 0; filter: brightness(2) drop-shadow(0 0 30px #fff); }
+    .elt-explode .elt-artifact-text { opacity: 0; }
+
+    /* Экраны Overlay */
+    .elt-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 20; text-align: center; padding: 20px; transition: 0.5s; pointer-events: auto;}
+    .elt-hidden { opacity: 0; pointer-events: none; }
+    .elt-title { color: #fff; font-size: 40px; font-weight: 800; text-shadow: ${conf.useGlow ? `0 0 20px ${conf.glowColor}` : 'none'}; margin-bottom: 25px;}
+    .elt-title.red { color: #ff4757; text-shadow: 0 0 20px #ff4757; }
+    
+    .elt-btn { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(90deg, ${conf.useGlow ? conf.glowColor : '#ccc'}, #fff) !important; color: #000 !important; font-family: 'Poppins', sans-serif !important; font-size: 24px !important; font-weight: 800 !important; padding: 15px 40px !important; border: none !important; border-radius: 30px !important; cursor: pointer; transition: 0.2s; box-shadow: ${conf.useGlow ? `0 0 15px ${conf.glowColor}` : 'none'} !important; pointer-events: auto; user-select: none;}
+    .elt-btn:hover { transform: scale(1.05); }
+    
+    /* Картинка Финала УВЕЛИЧЕНА (с 200px до 300px) */
+    .elt-end-img { width: 300px !important; max-width: 60vw !important; margin-bottom: 20px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+</style>
+</head>
+<body>
+<div id="elt-al-app">
+    
+    <div class="elt-top-bar">
+        <!-- ОБНОВЛЕННЫЙ ТАЙМЕР (Заяц едет слева направо по исчезающей полоске) -->
+        <div class="elt-panel elt-timer-box">
+            <div class="elt-progress-bg">
+                <div class="elt-progress-bar" id="elt-bar"></div>
+                <img src="https://i.postimg.cc/d1w9drY5/rabbit.png" class="elt-rabbit" id="elt-rabbit-icon">
+            </div>
+        </div>
+        <div class="elt-panel" style="margin-left:auto; margin-right: 15px;"><span id="elt-score-lbl"></span>: <span id="elt-score">0</span></div>
+        <div class="elt-panel"><span id="elt-lives">❤️❤️❤️</span></div>
+    </div>
+
+    <img src="https://i.postimg.cc/DZncsLTj/Alice.png" id="elt-al-alice">
+    
+    <!-- Центральная плашка раунда -->
+    <div id="elt-al-round-banner">Round 1</div>
+    
+    <!-- Верхний вопрос -->
+    <div id="elt-al-q-banner" style="display:none;"></div>
+    
+    <div id="elt-al-playarea"></div>
+
+    <div id="elt-start-screen" class="elt-overlay">
+        <div class="elt-title">Alice in Wonderland</div>
+        <div class="elt-btn" id="elt-start-btn">${conf.startText}</div>
+    </div>
+
+    <div id="elt-over-screen" class="elt-overlay elt-hidden">
+        <div class="elt-title red" id="elt-over-lbl">GAME OVER</div>
+        <div class="elt-btn" id="elt-try-btn">Try Again</div>
+    </div>
+
+    <div id="elt-win-screen" class="elt-overlay elt-hidden">
+        <img src="https://i.postimg.cc/LX2VfLpy/Alice-2.png" class="elt-end-img">
+        <div class="elt-title">${conf.winText}</div>
+    </div>
+
+<script>
+(function(){
+    const dict = {
+        EN: { score: "Score", over: "GAME OVER", try: "Try Again", round: "Round" },
+        RU: { score: "Очки", over: "ИГРА ОКОНЧЕНА", try: "Повторить", round: "Раунд" },
+        ES: { score: "Puntos", over: "FIN DEL JUEGO", try: "Reintentar", round: "Ronda" },
+        FR: { score: "Score", over: "FIN DE PARTIE", try: "Réessayer", round: "Manche" },
+        DE: { score: "Punkte", over: "SPIEL VORBEI", try: "Nochmal", round: "Runde" },
+        IT: { score: "Punti", over: "FINE DEL GIOCO", try: "Riprova", round: "Round" },
+        PT: { score: "Pontos", over: "FIM DE JOGO", try: "Tentar de novo", round: "Rodada" },
+        PL: { score: "Punkty", over: "KONIEC GRY", try: "Spróbuj ponownie", round: "Runda" },
+        TR: { score: "Puan", over: "OYUN BİTTİ", try: "Tekrar Dene", round: "Tur" }
+    };
+    const lang = dict['${conf.lang}'] || dict['EN'];
+    document.getElementById('elt-score-lbl').innerText = lang.score;
+    document.getElementById('elt-over-lbl').innerText = lang.over;
+    document.getElementById('elt-try-btn').innerText = lang.try;
+
+    const RAW_ROUNDS = ${JSON.stringify(conf.roundsData)};
+    const ARTIFACTS = ${JSON.stringify(conf.artifacts)};
+    const MIX_ANSWERS = ${conf.mixAnswers};
+    const USE_TIMER = ${conf.useTimer};
+    const TIME_MAX = ${conf.timeSec};
+    const BASE_SPEED = ${conf.speed};
+
+    const game = {
+        rounds: [], currentRoundIdx: 0, currentQIdx: 0,
+        score: 0, lives: 3, time: TIME_MAX, timerInt: null,
+        isPlaying: false, area: document.getElementById('elt-al-playarea'),
+        
+        init: function() {
+            RAW_ROUNDS.forEach(r => {
+                let allCorrect = r.map(x => x.c);
+                let parsedQ = r.map(q => {
+                    let w = [...q.w];
+                    if(MIX_ANSWERS) {
+                        while(w.length < 3) {
+                            let rand = allCorrect[Math.floor(Math.random() * allCorrect.length)];
+                            if(rand !== q.c && !w.includes(rand)) w.push(rand);
+                            else if(w.length === 0) w.push("?"); 
+                            else break;
+                        }
+                    }
+                    return { q: q.q, c: q.c, w: w };
+                });
+                this.rounds.push(parsedQ);
+            });
+            
+            document.getElementById('elt-start-btn').addEventListener('click', () => this.startGame());
+            document.getElementById('elt-try-btn').addEventListener('click', () => this.resetGame());
+        },
+
+        updateUI: function() {
+            document.getElementById('elt-score').innerText = this.score;
+            document.getElementById('elt-lives').innerText = "❤️".repeat(this.lives) || "💔";
+            
+            if(USE_TIMER) {
+                let pct = (this.time / TIME_MAX) * 100;
+                document.getElementById('elt-bar').style.width = pct + "%";
+                
+                // Кролик едет СЛЕВА НАПРАВО по мере таяния времени (100 - pct)
+                document.getElementById('elt-rabbit-icon').style.left = (100 - pct) + "%";
+            }
+        },
+
+        startGame: function() {
+            document.getElementById('elt-start-screen').classList.add('elt-hidden');
+            this.currentRoundIdx = 0;
+            this.currentQIdx = 0;
+            this.score = 0;
+            this.lives = 3;
+            this.updateUI();
+            this.showRoundBanner();
+        },
+
+        resetGame: function() {
+            document.getElementById('elt-over-screen').classList.add('elt-hidden');
+            this.startGame();
+        },
+
+        showRoundBanner: function() {
+            this.isPlaying = false;
+            clearInterval(this.timerInt);
+            document.getElementById('elt-al-q-banner').style.display = 'none';
+            this.area.innerHTML = '';
+            
+            let rb = document.getElementById('elt-al-round-banner');
+            rb.innerText = lang.round + " " + (this.currentRoundIdx + 1);
+            rb.style.opacity = 1;
+            
+            setTimeout(() => {
+                rb.style.opacity = 0;
+                this.currentQIdx = 0;
+                this.isPlaying = true;
+                document.getElementById('elt-al-q-banner').style.display = 'block';
+                this.showQuestion();
+            }, 2000);
+        },
+
+        startTimer: function() {
+            clearInterval(this.timerInt);
+            this.timerInt = setInterval(() => {
+                if(!this.isPlaying) return;
+                this.time--;
+                this.updateUI();
+                if(this.time <= 0) {
+                    clearInterval(this.timerInt);
+                    this.isPlaying = false;
+                    this.lives = 0; 
+                    this.updateUI();
+                    document.getElementById('elt-over-screen').classList.remove('elt-hidden');
+                }
+            }, 1000);
+        },
+
+        showQuestion: function() {
+            if(this.currentQIdx >= this.rounds[this.currentRoundIdx].length) {
+                this.currentRoundIdx++;
+                if(this.currentRoundIdx >= this.rounds.length) {
+                    this.win();
+                    return;
+                } else {
+                    this.showRoundBanner();
+                    return;
+                }
+            }
+
+            if(USE_TIMER) {
+                this.time = TIME_MAX;
+                this.updateUI();
+                this.startTimer();
+            }
+
+            let qData = this.rounds[this.currentRoundIdx][this.currentQIdx];
+            document.getElementById('elt-al-q-banner').innerText = qData.q;
+            
+            let answers = [{t: qData.c, correct: true}];
+            let wrongs = [...qData.w].sort(()=>0.5-Math.random()).slice(0, 3);
+            wrongs.forEach(w => answers.push({t: w, correct: false}));
+            answers.sort(()=>0.5-Math.random());
+            
+            this.spawnWave(answers);
+        },
+
+        spawnWave: function(answers) {
+            this.area.innerHTML = ''; 
+            let lanes = [10, 35, 60, 85].sort(()=>0.5-Math.random());
+            let delays = [0, 0.8, 1.6, 2.4].sort(()=>0.5-Math.random());
+
+            let waveImgs = [...ARTIFACTS].sort(()=>0.5-Math.random());
+
+            answers.forEach((ans, i) => {
+                let el = document.createElement('div');
+                el.className = 'elt-artifact-wrapper';
+                
+                let imgUrl = waveImgs[i % waveImgs.length];
+                
+                el.innerHTML = '<img src="'+imgUrl+'" class="elt-artifact-img"><div class="elt-artifact-text">'+ans.t+'</div>';
+                el.style.left = lanes[i] + '%';
+                el.style.transform = 'translateX(-50%)';
+                
+                let dur = BASE_SPEED + Math.random(); 
+                el.style.animation = 'floatUp '+ dur +'s linear forwards';
+                el.style.animationDelay = delays[i] + 's';
+                el.style.animationFillMode = 'both'; 
+                
+                el.onclick = () => {
+                    if(!this.isPlaying) return;
+                    if(ans.correct) {
+                        this.isPlaying = false;
+                        clearInterval(this.timerInt); 
+                        el.classList.add('elt-explode');
+                        this.score += 100;
+                        this.updateUI();
+                        Array.from(this.area.children).forEach(child => { if(child !== el) child.style.opacity = 0; });
+                        setTimeout(() => { this.currentQIdx++; this.isPlaying = true; this.showQuestion(); }, 1000);
+                    } else {
+                        this.loseLife();
+                    }
+                };
+                
+                el.addEventListener('animationend', () => {
+                    if(this.isPlaying && ans.correct && Array.from(this.area.children).includes(el)) {
+                        this.spawnWave(answers); 
+                    }
+                });
+
+                this.area.appendChild(el);
+            });
+        },
+
+        loseLife: function() {
+            this.lives--;
+            this.updateUI();
+            document.getElementById('elt-al-app').style.boxShadow = "inset 0 0 80px red";
+            setTimeout(()=> document.getElementById('elt-al-app').style.boxShadow = "none", 300);
+            
+            if(this.lives <= 0) {
+                this.isPlaying = false;
+                clearInterval(this.timerInt);
+                document.getElementById('elt-over-screen').classList.remove('elt-hidden');
+            }
+        },
+
+        win: function() {
+            this.isPlaying = false;
+            clearInterval(this.timerInt);
+            document.getElementById('elt-al-q-banner').style.display = 'none';
+            this.area.innerHTML = '';
+            document.getElementById('elt-win-screen').classList.remove('elt-hidden');
+        }
+    };
+
+    game.init();
+})();
+<\/script>
+</div>
+</body>
+</html>`;
+            document.getElementById('generated-code').value = safeHtmlCode;
+            document.getElementById('previewFrame').srcdoc = safeHtmlCode;
+        }
+
+        function copyCode() {
+            generateCode(); 
+            const codeArea = document.getElementById('generated-code');
+            codeArea.select();
+            document.execCommand('copy');
+            const btn = document.getElementById('copyBtn');
+            btn.innerText = 'Успешно скопировано!';
+            btn.style.background = '#2ecc71';
+            setTimeout(() => { 
+                btn.innerText = 'Сгенерировать и Скопировать код'; 
+                btn.style.background = 'linear-gradient(90deg, #ff9a9e, #fecfef)';
+            }, 2000);
+        }
+
+        let previewTimeout;
+        function debounceGenerate() {
+            clearTimeout(previewTimeout);
+            previewTimeout = setTimeout(generateCode, 800);
+        }
+
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('input', debounceGenerate);
+            el.addEventListener('change', debounceGenerate);
+        });
+
+        addRound(); // Init First Round
+    </script>
+</body>
+</html>
