@@ -15,6 +15,8 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .editor-panel { width: 50%; display: flex; flex-direction: column; overflow-y: auto; }
+        .editor-panel::-webkit-scrollbar { width: 6px; }
+        .editor-panel::-webkit-scrollbar-thumb { background: #535c91; border-radius: 3px; }
         .preview-panel { width: 50%; display: flex; flex-direction: column; position: relative; padding-bottom: 40px;}
         h1, h2 { color: #ff9a9e; text-shadow: 0 0 8px rgba(255, 154, 158, 0.6); margin-top: 0; text-align: center; }
         h3 { color: #a1c4fd; font-size: 16px; margin-bottom: 10px; border-bottom: 1px solid #535c91; padding-bottom: 5px; margin-top: 25px;}
@@ -25,8 +27,9 @@
         input[type="url"], input[type="text"], input[type="number"], select, textarea {
             width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #535c91;
             background-color: #0f3460; color: #fff; box-sizing: border-box; font-family: 'Poppins', sans-serif;
-            font-size: 13px;
+            font-size: 13px; transition: border-color 0.2s;
         }
+        input:focus, select:focus, textarea:focus { border-color: #a1c4fd; outline: none; }
         input[type="range"] { width: 100%; accent-color: #ff9a9e; cursor: pointer; }
         textarea { resize: vertical; min-height: 100px; white-space: pre; overflow-wrap: normal; overflow-x: auto;}
         input[type="color"] { padding: 0; border: none; width: 40px; height: 30px; border-radius: 5px; cursor: pointer;}
@@ -34,7 +37,8 @@
         
         .flex-row { display: flex; gap: 15px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
         .color-group { display: flex; align-items: center; background: #0f3460; padding: 5px 12px; border-radius: 8px; border: 1px solid #535c91; gap: 10px; flex: 1; justify-content: center;}
-        
+        .val-display { font-weight: 700; color: #a1c4fd; }
+
         .round-box { background: rgba(0,0,0,0.25); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #535c91;}
         .btn-outline { background: transparent; border: 2px dashed #ff9a9e; color: #ff9a9e; width: 100%; margin-top: 5px;}
         .btn-outline:hover { background: rgba(255, 154, 158, 0.1); }
@@ -63,19 +67,15 @@
         <h1>Alice Game Editor</h1>
         
         <h3>Основные настройки</h3>
+        <div class="form-group">
+            <label>Название игры</label>
+            <input type="text" id="gameTitle" value="Alice in Wonderland">
+        </div>
         <div class="flex-row">
             <div class="form-group" style="flex:1;">
                 <label>Язык интерфейса</label>
                 <select id="uiLang" onchange="updateStartBtnText()">
-                    <option value="EN">English</option>
-                    <option value="RU">Русский</option>
-                    <option value="ES">Español</option>
-                    <option value="FR">Français</option>
-                    <option value="DE">Deutsch</option>
-                    <option value="IT">Italiano</option>
-                    <option value="PT">Português</option>
-                    <option value="PL">Polski</option>
-                    <option value="TR">Türkçe</option>
+                    <option value="EN">English</option><option value="RU">Русский</option><option value="ES">Español</option><option value="FR">Français</option><option value="DE">Deutsch</option><option value="IT">Italiano</option><option value="PT">Português</option><option value="PL">Polski</option><option value="TR">Türkçe</option>
                 </select>
             </div>
             <div class="form-group" style="flex:1;">
@@ -95,6 +95,23 @@
                     <input type="checkbox" id="useTimer" checked>
                     <input type="number" id="timeSec" value="15" min="3" max="120" style="width:100%;">
                 </div>
+            </div>
+        </div>
+
+        <h3>Размеры и Цвета</h3>
+        <div class="form-group">
+            <label>Размер героя (Алисы): <span class="val-display" id="aliceSizeLbl">350</span>px</label>
+            <input type="range" id="aliceSize" min="100" max="600" value="350">
+        </div>
+        <div class="form-group">
+            <label>Размер артефактов: <span class="val-display" id="artifactSizeLbl">100</span>px</label>
+            <input type="range" id="artifactSize" min="50" max="200" value="100">
+        </div>
+        <div class="flex-row">
+            <div class="color-group"><label>Цвет кнопки СТАРТ</label><input type="color" id="startBtnColor" value="#ff9a9e"></div>
+             <div class="color-group">
+                <input type="checkbox" id="useGlow" checked> <label>Неон</label>
+                <input type="color" id="glowColor" value="#ff9a9e">
             </div>
         </div>
 
@@ -136,6 +153,7 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             <div class="form-group" style="flex:1;">
                 <label>Шрифт Вопроса</label>
                 <select id="qFontFamily">
+                    <option value="'Alice', serif">Alice</option>
                     <option value="'Poppins', sans-serif">Poppins</option>
                     <option value="'Montserrat', sans-serif">Montserrat</option>
                     <option value="'Russo One', sans-serif">Russo One</option>
@@ -152,6 +170,7 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             <div class="form-group" style="flex:1;">
                 <label>Шрифт Ответов</label>
                 <select id="aFontFamily">
+                    <option value="'Alice', serif">Alice</option>
                     <option value="'Poppins', sans-serif" selected>Poppins</option>
                     <option value="'Montserrat', sans-serif">Montserrat</option>
                     <option value="'Russo One', sans-serif">Russo One</option>
@@ -167,40 +186,34 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             </div>
         </div>
         <div class="flex-row">
-            <div class="color-group"><label>Цвет Вопроса</label><input type="color" id="qColor" value="#ffffff"></div>
-            <div class="color-group"><label>Цвет Ответов</label><input type="color" id="aColor" value="#ffffff"></div>
-            <div class="color-group">
-                <input type="checkbox" id="useGlow" checked> <label>Неон</label>
-                <input type="color" id="glowColor" value="#ff9a9e">
-            </div>
+            <div class="color-group"><label>Цвет текста Вопроса</label><input type="color" id="qColor" value="#ffffff"></div>
+            <div class="color-group"><label>Фон Вопроса</label><input type="color" id="qBgColor" value="#000000"></div>
+        </div>
+        <div class="flex-row">
+            <div class="color-group"><label>Цвет текста Ответов</label><input type="color" id="aColor" value="#ffffff"></div>
+            <div class="color-group"><label>Фон Ответов</label><input type="color" id="aBgColor" value="#000000"></div>
         </div>
         <div class="form-group">
-            <label>Размер шрифта ВОПРОСА: <span id="qSizeLbl">28</span>px</label>
+            <label>Размер шрифта ВОПРОСА: <span class="val-display" id="qSizeLbl">28</span>px</label>
             <input type="range" id="qFontSize" min="16" max="60" value="28">
         </div>
         <div class="form-group">
-            <label>Размер шрифта ОТВЕТОВ: <span id="aSizeLbl">18</span>px</label>
+            <label>Размер шрифта ОТВЕТОВ: <span class="val-display" id="aSizeLbl">18</span>px</label>
             <input type="range" id="aFontSize" min="12" max="40" value="18">
         </div>
 
         <h3>Раунды и Вопросы</h3>
         <div class="flex-row" style="margin-bottom: 5px;">
             <input type="checkbox" id="mixAnswers" checked>
-            <label style="margin:0; font-size:12px;">Авто-обманки (брать чужие правильные ответы, если не хватает своих)</label>
+            <label style="margin:0; font-size:12px;">Авто-обманки (брать чужие правильные ответы)</label>
         </div>
         <div id="roundsContainer"></div>
         <button class="btn-outline" onclick="addRound()">+ Добавить раунд (Макс 5)</button>
 
         <h3>Финал игры</h3>
         <div class="flex-row">
-            <div class="form-group" style="flex:1;">
-                <label>Текст при победе</label>
-                <input type="text" id="winText" value="You are just in time!">
-            </div>
-            <div class="form-group" style="flex:1;">
-                <label>Текст при проигрыше</label>
-                <input type="text" id="loseText" value="GAME OVER">
-            </div>
+            <div class="form-group" style="flex:1;"><label>Текст при победе</label><input type="text" id="winText" value="You are just in time!"></div>
+            <div class="form-group" style="flex:1;"><label>Текст при проигрыше</label><input type="text" id="loseText" value="GAME OVER"></div>
         </div>
         
         <button id="copyBtn" onclick="copyCode()" style="width: 100%; margin-top:10px;">Сгенерировать и Скопировать код</button>
@@ -224,7 +237,6 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
         const startDict = { EN: "START", RU: "ИГРАТЬ", ES: "JUGAR", FR: "JOUER", DE: "START", IT: "INIZIA", PT: "JOGAR", PL: "START", TR: "BAŞLA" };
         let roundCount = 0;
 
-        // --- Image Upload Logic ---
         function fileToBase64(file, callback) {
             const reader = new FileReader();
             reader.onload = () => callback(reader.result);
@@ -235,12 +247,7 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
         function setupImageUpload(inputId, targetId) {
             document.getElementById(inputId).addEventListener('change', (event) => {
                 const file = event.target.files[0];
-                if (file) {
-                    fileToBase64(file, (base64) => {
-                        document.getElementById(targetId).value = base64;
-                        debounceGenerate();
-                    });
-                }
+                if (file) fileToBase64(file, (base64) => { document.getElementById(targetId).value = base64; debounceGenerate(); });
             });
         }
         
@@ -250,28 +257,25 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
         setupImageUpload('file-alice-win', 'aliceWinUrl');
 
         document.getElementById('file-artifacts').addEventListener('change', (event) => {
-            const files = event.target.files;
-            const textarea = document.getElementById('artifactsUrls');
-            let processedFiles = 0;
+            const files = event.target.files, textarea = document.getElementById('artifactsUrls');
+            let processed = 0;
             for (const file of files) {
                 fileToBase64(file, (base64) => {
-                    const currentText = textarea.value.trim();
-                    textarea.value = (currentText ? currentText + '\n' : '') + base64;
-                    processedFiles++;
-                    if(processedFiles === files.length) debounceGenerate();
+                    textarea.value = (textarea.value.trim() ? textarea.value.trim() + '\n' : '') + base64;
+                    if(++processed === files.length) debounceGenerate();
                 });
             }
         });
-        // --- End of Image Upload Logic ---
 
         function updateStartBtnText() {
-            const lang = document.getElementById('uiLang').value;
-            document.getElementById('startBtnText').value = startDict[lang] || "START";
+            document.getElementById('startBtnText').value = startDict[document.getElementById('uiLang').value] || "START";
             debounceGenerate();
         }
-
+        
         document.getElementById('qFontSize').addEventListener('input', (e) => { document.getElementById('qSizeLbl').innerText = e.target.value; });
         document.getElementById('aFontSize').addEventListener('input', (e) => { document.getElementById('aSizeLbl').innerText = e.target.value; });
+        document.getElementById('aliceSize').addEventListener('input', (e) => { document.getElementById('aliceSizeLbl').innerText = e.target.value; });
+        document.getElementById('artifactSize').addEventListener('input', (e) => { document.getElementById('artifactSizeLbl').innerText = e.target.value; });
 
         function addRound() {
             if (roundCount >= 5) { alert("Максимум 5 раундов!"); return; }
@@ -280,10 +284,7 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             div.className = 'round-box';
             let defaultQ = ["What color is the sky?", "What color is the sun?", "How many days in a week?", "Which animal barks?"].join('\n');
             let defaultA = ["Blue | Red | Green | Yellow", "Yellow | Purple", "7 | 5 | 10", "Dog | Cat | Cow"].join('\n');
-            if(roundCount > 1) { 
-                defaultQ = ["Question 1", "Question 2"].join('\n'); 
-                defaultA = ["Ans1 | W1 | W2", "Ans2 | W3 | W4"].join('\n'); 
-            }
+            if(roundCount > 1) { defaultQ = ["Question 1", "Question 2"].join('\n'); defaultA = ["Ans1 | W1 | W2", "Ans2 | W3 | W4"].join('\n'); }
             div.innerHTML = `
                 <div style="font-weight:700; color:#ff9a9e; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                     <span>Раунд ${roundCount}</span>
@@ -299,10 +300,14 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             debounceGenerate();
         }
 
+        function hexToRgba(hex, alpha = 1) {
+            const [r, g, b] = hex.match(/\w\w/g).map(x => parseInt(x, 16));
+            return `rgba(${r},${g},${b},${alpha})`;
+        }
+
         function getInputs() {
             let roundsData = [];
             document.querySelectorAll('.round-box').forEach(rb => {
-                let rName = (rb.querySelector('.round-name') || {}).value || "";
                 let qLines = rb.querySelector('.q-list').value.split('\n').map(s=>s.trim()).filter(s=>s);
                 let aLines = rb.querySelector('.a-list').value.split('\n').map(s=>s.trim()).filter(s=>s);
                 let gameQuestions = [];
@@ -310,32 +315,26 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
                     let parts = aLines[i].split('|').map(s=>s.trim()).filter(s=>s);
                     if(parts.length > 0) gameQuestions.push({ q: qLines[i], c: parts[0], w: parts.slice(1) });
                 }
-                if(gameQuestions.length > 0) roundsData.push({ name: rName, questions: gameQuestions });
+                if(gameQuestions.length > 0) roundsData.push({ name: rb.querySelector('.round-name').value || "", questions: gameQuestions });
             });
 
             return {
-                lang: document.getElementById('uiLang').value,
-                startText: document.getElementById('startBtnText').value,
+                gameTitle: document.getElementById('gameTitle').value,
+                lang: document.getElementById('uiLang').value, startText: document.getElementById('startBtnText').value,
                 speed: parseFloat(document.getElementById('flySpeed').value),
-                bgUrl: document.getElementById('bgUrl').value,
-                aliceUrl: document.getElementById('aliceUrl').value,
-                rabbitUrl: document.getElementById('rabbitUrl').value,
-                aliceWinUrl: document.getElementById('aliceWinUrl').value,
+                bgUrl: document.getElementById('bgUrl').value, aliceUrl: document.getElementById('aliceUrl').value,
+                rabbitUrl: document.getElementById('rabbitUrl').value, aliceWinUrl: document.getElementById('aliceWinUrl').value,
                 artifacts: document.getElementById('artifactsUrls').value.split('\n').map(s=>s.trim()).filter(s=>s),
-                qFontFamily: document.getElementById('qFontFamily').value,
-                aFontFamily: document.getElementById('aFontFamily').value,
-                qColor: document.getElementById('qColor').value,
-                aColor: document.getElementById('aColor').value,
-                useGlow: document.getElementById('useGlow').checked,
-                glowColor: document.getElementById('glowColor').value,
-                qSize: document.getElementById('qFontSize').value,
-                aSize: document.getElementById('aFontSize').value,
-                useTimer: document.getElementById('useTimer').checked,
-                timeSec: parseInt(document.getElementById('timeSec').value) || 15,
-                mixAnswers: document.getElementById('mixAnswers').checked,
-                roundsData: roundsData,
-                winText: document.getElementById('winText').value,
-                loseText: document.getElementById('loseText').value
+                qFontFamily: document.getElementById('qFontFamily').value, aFontFamily: document.getElementById('aFontFamily').value,
+                qColor: document.getElementById('qColor').value, aColor: document.getElementById('aColor').value,
+                qBgColor: document.getElementById('qBgColor').value, aBgColor: document.getElementById('aBgColor').value,
+                useGlow: document.getElementById('useGlow').checked, glowColor: document.getElementById('glowColor').value,
+                startBtnColor: document.getElementById('startBtnColor').value,
+                qSize: document.getElementById('qFontSize').value, aSize: document.getElementById('aFontSize').value,
+                aliceSize: document.getElementById('aliceSize').value, artifactSize: document.getElementById('artifactSize').value,
+                useTimer: document.getElementById('useTimer').checked, timeSec: parseInt(document.getElementById('timeSec').value) || 15,
+                mixAnswers: document.getElementById('mixAnswers').checked, roundsData: roundsData,
+                winText: document.getElementById('winText').value, loseText: document.getElementById('loseText').value
             };
         }
 
@@ -344,244 +343,90 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             if(conf.roundsData.length === 0) conf.roundsData = [{name: "", questions:[{q:"Configure questions first!", c:"OK", w:["No"]}]}];
 
             const safeHtmlCode = `<!DOCTYPE html>
-<html lang="${conf.lang.toLowerCase()}">
-<head>
+<html lang="${conf.lang.toLowerCase()}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Bad+Script&family=Caveat:wght@700&family=Comfortaa:wght@700&family=Kurale&family=Montserrat:wght@700;800&family=Neucha&family=Oswald:wght@700&family=Pacifico&family=Playfair+Display:wght@700&family=Roboto:wght@700&family=Russo+One&family=Poppins:wght@600;800&display=swap');
-    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
-    #elt-al-app { position: absolute; inset: 0; font-family: 'Poppins', sans-serif; background: url("${conf.bgUrl}") center/cover no-repeat; user-select: none; box-sizing: border-box; }
-    #elt-al-app * { box-sizing: border-box; }
-    .elt-top-bar { position: absolute; top: 60px !important; left: 30px; right: 15px; display: flex; justify-content: space-between; z-index: 10; pointer-events: none;}
-    .elt-panel { background: rgba(0,0,0,0.8) !important; padding: 6px 15px !important; border-radius: 15px !important; color: #fff !important; font-size: 16px !important; line-height: 1.2 !important; font-weight: 800 !important; border: 2px solid ${conf.useGlow ? conf.glowColor : '#fff'} !important; box-shadow: ${conf.useGlow ? `0 0 10px ${conf.glowColor}` : 'none'} !important; display:flex !important; align-items:center !important; gap: 8px !important;}
-    .elt-timer-box { display: ${conf.useTimer ? 'flex' : 'none'} !important; align-items: center; width: 220px; max-width: 35vw;}
-    .elt-progress-bg { position: relative; flex: 1; height: 20px; background: rgba(255,255,255,0.2); border-radius: 5px; overflow: visible !important; display: flex !important; justify-content: flex-end !important; }
-    .elt-progress-bar { height: 100%; background: ${conf.glowColor}; width: 100%; transition: width 1s linear; border-radius: 5px; }
-    .elt-rabbit { position: absolute; bottom: -8px; left: 0%; transform: translateX(-50%) scaleX(-1); width: 80px !important; height: auto !important; transition: left 1s linear; z-index: 15; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));}
-    #elt-lives { font-size: 16px !important; line-height: 1 !important; letter-spacing: 2px !important; }
-    #elt-pause-btn { position: absolute !important; bottom: 15px !important; right: 15px !important; width: 45px !important; height: 45px !important; background: rgba(0,0,0,0.7) !important; border: 2px solid ${conf.useGlow ? conf.glowColor : '#fff'} !important; box-shadow: ${conf.useGlow ? `0 0 10px ${conf.glowColor}` : 'none'} !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 20px !important; cursor: pointer !important; z-index: 50 !important; transition: transform 0.2s, opacity 0.3s !important; user-select: none !important; opacity: 0 !important; pointer-events: none !important;}
-    #elt-pause-btn.elt-active { opacity: 1 !important; pointer-events: auto !important; }
-    #elt-pause-btn:hover { transform: scale(1.1) !important; }
-    #elt-al-round-banner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: #fff !important; padding: 20px 40px !important; border-radius: 20px !important; font-size: 40px !important; font-weight: 800 !important; text-align: center; z-index: 30; border: 3px solid ${conf.useGlow ? conf.glowColor : '#fff'} !important; box-shadow: ${conf.useGlow ? `0 0 30px ${conf.glowColor}` : 'none'} !important; text-shadow: ${conf.useGlow ? `0 0 15px ${conf.glowColor}` : 'none'} !important; transition: 0.3s; opacity: 0; pointer-events: none; }
-    #elt-al-q-banner { position: absolute; top: 80px !important; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: ${conf.qColor} !important; padding: 12px 25px !important; border-radius: 30px !important; font-family: ${conf.qFontFamily} !important; font-size: ${conf.qSize}px !important; line-height: 1.2 !important; font-weight: 800 !important; text-align: center; max-width: 90%; z-index: 10; border: 2px solid ${conf.useGlow ? conf.glowColor : '#fff'} !important; box-shadow: ${conf.useGlow ? `0 0 20px ${conf.glowColor}` : 'none'} !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important; transition: 0.3s; pointer-events: none; }
-    #elt-al-alice { position: absolute; right: 1%; top: 20%; width: 350px !important; max-width: 45vw !important; animation: aliceFloat 4s ease-in-out infinite; z-index: 5; pointer-events: none; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));}
-    @keyframes aliceFloat { 0%, 100% { transform: translateY(0) rotate(5deg); } 50% { transform: translateY(-40px) rotate(-5deg); } }
-    #elt-al-playarea { position: absolute; top:0; left:0; right:0; bottom:0; z-index: 8; overflow: hidden;}
-    .elt-artifact-wrapper { position: absolute; bottom: -200px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s; pointer-events: auto; }
-    .elt-artifact-wrapper:hover { transform: scale(1.15); }
-    .elt-artifact-img { width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.6)); transition: 0.3s; }
-    .elt-paused .elt-artifact-wrapper { animation-play-state: paused !important; pointer-events: none !important; }
-    .elt-artifact-text { margin-top: 5px; background: rgba(0,0,0,0.85) !important; color: ${conf.aColor} !important; padding: 8px 16px !important; border-radius: 12px !important; font-family: ${conf.aFontFamily} !important; font-size: ${conf.aSize}px !important; line-height: 1.2 !important; font-weight: 800 !important; text-align: center; border: 2px solid ${conf.useGlow ? conf.glowColor : '#fff'} !important; box-shadow: ${conf.useGlow ? `0 0 10px ${conf.glowColor}` : 'none'} !important; pointer-events: none; white-space: nowrap !important; min-width: 40px;}
-    @keyframes floatUp { 0% { transform: translateY(20vh); opacity: 0; } 5% { opacity: 1; } 100% { transform: translateY(-130vh); opacity: 1; } }
-    .elt-explode .elt-artifact-img { transform: scale(2.2) rotate(15deg); opacity: 0; filter: brightness(2) drop-shadow(0 0 30px #fff); }
-    .elt-explode .elt-artifact-text { opacity: 0; }
-    .elt-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 20; text-align: center; padding: 20px; transition: 0.5s; pointer-events: auto;}
-    .elt-hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; z-index: -10 !important; }
-    .elt-title { color: #fff; font-size: 40px; font-weight: 800; text-shadow: ${conf.useGlow ? `0 0 20px ${conf.glowColor}` : 'none'}; margin-bottom: 25px;}
-    .elt-title.red { color: #ff4757; text-shadow: 0 0 20px #ff4757; }
-    .elt-btn { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(90deg, ${conf.useGlow ? conf.glowColor : '#ccc'}, #fff) !important; color: #000 !important; font-family: 'Poppins', sans-serif !important; font-size: 24px !important; font-weight: 800 !important; padding: 15px 40px !important; border: none !important; border-radius: 30px !important; cursor: pointer; transition: 0.2s; box-shadow: ${conf.useGlow ? `0 0 15px ${conf.glowColor}` : 'none'} !important; pointer-events: auto; user-select: none;}
-    .elt-btn:hover { transform: scale(1.05); }
-    .elt-end-img { width: 300px !important; max-width: 60vw !important; margin-bottom: 20px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-</style>
-</head>
-<body>
+    @import url('https://fonts.googleapis.com/css2?family=Alice&family=Amatic+SC:wght@700&family=Bad+Script&family=Caveat:wght@700&family=Comfortaa:wght@700&family=Kurale&family=Montserrat:wght@700;800&family=Neucha&family=Oswald:wght@700&family=Pacifico&family=Playfair+Display:wght@700&family=Roboto:wght@700&family=Russo+One&family=Poppins:wght@600;800&display=swap');
+    html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:transparent}
+    #elt-al-app{position:absolute;inset:0;font-family:'Poppins',sans-serif;background:url("${conf.bgUrl}") center/cover no-repeat;user-select:none;box-sizing:border-box}
+    #elt-al-app *{box-sizing:border-box}
+    .elt-top-bar{position:absolute;top:60px!important;left:30px;right:15px;display:flex;justify-content:space-between;z-index:10;pointer-events:none}
+    .elt-panel{background:rgba(0,0,0,.8)!important;padding:6px 15px!important;border-radius:15px!important;color:#fff!important;font-size:16px!important;line-height:1.2!important;font-weight:800!important;border:2px solid ${conf.useGlow?conf.glowColor:'#fff'}!important;box-shadow:${conf.useGlow?`0 0 10px ${conf.glowColor}`:'none'}!important;display:flex!important;align-items:center!important;gap:8px!important}
+    .elt-timer-box{display:${conf.useTimer?'flex':'none'}!important;align-items:center;width:220px;max-width:35vw}
+    .elt-progress-bg{position:relative;flex:1;height:20px;background:rgba(255,255,255,.2);border-radius:5px;overflow:visible!important;display:flex!important;justify-content:flex-end!important}
+    .elt-progress-bar{height:100%;background:${conf.glowColor};width:100%;transition:width 1s linear;border-radius:5px}
+    .elt-rabbit{position:absolute;bottom:-8px;left:0;transform:translateX(-50%) scaleX(-1);width:80px!important;height:auto!important;transition:left 1s linear;z-index:15;filter:drop-shadow(0 5px 5px rgba(0,0,0,.5))}
+    #elt-lives{font-size:16px!important;line-height:1!important;letter-spacing:2px!important}
+    #elt-pause-btn{position:absolute!important;bottom:15px!important;right:15px!important;width:45px!important;height:45px!important;background:rgba(0,0,0,.7)!important;border:2px solid ${conf.useGlow?conf.glowColor:'#fff'}!important;box-shadow:${conf.useGlow?`0 0 10px ${conf.glowColor}`:'none'}!important;border-radius:50%!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:20px!important;cursor:pointer!important;z-index:50!important;transition:transform .2s,opacity .3s!important;user-select:none!important;opacity:0!important;pointer-events:none!important}
+    #elt-pause-btn.elt-active{opacity:1!important;pointer-events:auto!important}
+    #elt-pause-btn:hover{transform:scale(1.1)!important}
+    #elt-al-round-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.85);color:#fff!important;padding:20px 40px!important;border-radius:20px!important;font-size:40px!important;font-weight:800!important;text-align:center;z-index:30;border:3px solid ${conf.useGlow?conf.glowColor:'#fff'}!important;box-shadow:${conf.useGlow?`0 0 30px ${conf.glowColor}`:'none'}!important;text-shadow:${conf.useGlow?`0 0 15px ${conf.glowColor}`:'none'}!important;transition:.3s;opacity:0;pointer-events:none}
+    #elt-al-q-banner{position:absolute;top:80px!important;left:50%;transform:translateX(-50%);background:${hexToRgba(conf.qBgColor,.85)};color:${conf.qColor}!important;padding:12px 25px!important;border-radius:30px!important;font-family:${conf.qFontFamily}!important;font-size:${conf.qSize}px!important;line-height:1.2!important;font-weight:800!important;text-align:center;max-width:90%;z-index:10;border:2px solid ${conf.useGlow?conf.glowColor:'#fff'}!important;box-shadow:${conf.useGlow?`0 0 20px ${conf.glowColor}`:'none'}!important;text-shadow:2px 2px 4px rgba(0,0,0,.8)!important;transition:.3s;pointer-events:none}
+    #elt-al-alice{position:absolute;right:1%;top:20%;width:${conf.aliceSize}px!important;max-width:45vw!important;animation:aliceFloat 4s ease-in-out infinite;z-index:5;pointer-events:none;filter:drop-shadow(0 10px 15px rgba(0,0,0,.5))}
+    @keyframes aliceFloat{0%,100%{transform:translateY(0) rotate(5deg)}50%{transform:translateY(-40px) rotate(-5deg)}}
+    #elt-al-playarea{position:absolute;top:0;left:0;right:0;bottom:0;z-index:8;overflow:hidden}
+    .elt-artifact-wrapper{position:absolute;bottom:-200px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .2s;pointer-events:auto}
+    .elt-artifact-wrapper:hover{transform:scale(1.15)}
+    .elt-artifact-img{width:${conf.artifactSize}px;height:${conf.artifactSize}px;object-fit:contain;filter:drop-shadow(0 10px 10px rgba(0,0,0,.6));transition:.3s}
+    .elt-paused .elt-artifact-wrapper{animation-play-state:paused!important;pointer-events:none!important}
+    .elt-artifact-text{margin-top:5px;background:${hexToRgba(conf.aBgColor,.85)}!important;color:${conf.aColor}!important;padding:8px 16px!important;border-radius:12px!important;font-family:${conf.aFontFamily}!important;font-size:${conf.aSize}px!important;line-height:1.2!important;font-weight:800!important;text-align:center;border:2px solid ${conf.useGlow?conf.glowColor:'#fff'}!important;box-shadow:${conf.useGlow?`0 0 10px ${conf.glowColor}`:'none'}!important;pointer-events:none;white-space:nowrap!important;min-width:40px}
+    @keyframes floatUp{0%{transform:translateY(20vh);opacity:0}5%{opacity:1}100%{transform:translateY(-130vh);opacity:1}}
+    .elt-explode .elt-artifact-img{transform:scale(2.2) rotate(15deg);opacity:0;filter:brightness(2) drop-shadow(0 0 30px #fff)}
+    .elt-explode .elt-artifact-text{opacity:0}
+    .elt-overlay{position:absolute;inset:0;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;text-align:center;padding:20px;transition:.5s;pointer-events:auto}
+    .elt-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none!important;z-index:-10!important}
+    .elt-title{color:#fff;font-size:40px;font-weight:800;text-shadow:${conf.useGlow?`0 0 20px ${conf.glowColor}`:'none'};margin-bottom:25px}
+    .elt-title.red{color:#ff4757;text-shadow:0 0 20px #ff4757}
+    .elt-btn{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(90deg,${conf.startBtnColor},#fff)!important;color:#000!important;font-family:'Poppins',sans-serif!important;font-size:24px!important;font-weight:800!important;padding:15px 40px!important;border:none!important;border-radius:30px!important;cursor:pointer;transition:.2s;box-shadow:${conf.useGlow?`0 0 15px ${conf.glowColor}`:'none'}!important;pointer-events:auto;user-select:none}
+    .elt-btn:hover{transform:scale(1.05)}
+    .elt-end-img{width:300px!important;max-width:60vw!important;margin-bottom:20px;animation:popIn .6s cubic-bezier(.175,.885,.32,1.275)}
+    @keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+</style></head><body>
 <div id="elt-al-app">
-    <div class="elt-top-bar">
-        <div class="elt-panel elt-timer-box"><div class="elt-progress-bg"><div class="elt-progress-bar" id="elt-bar"></div><img src="${conf.rabbitUrl}" class="elt-rabbit" id="elt-rabbit-icon"></div></div>
-        <div class="elt-panel" style="margin-left:auto; margin-right: 15px;"><span id="elt-score-lbl"></span>: <span id="elt-score">0</span></div>
-        <div class="elt-panel"><span id="elt-lives">❤️❤️❤️</span></div>
-    </div>
-    <div id="elt-pause-btn" title="Pause">⏸️</div>
-    <img src="${conf.aliceUrl}" id="elt-al-alice">
-    <div id="elt-al-round-banner">Round 1</div>
-    <div id="elt-al-q-banner" style="display:none;"></div>
-    <div id="elt-al-playarea"></div>
-    <div id="elt-start-screen" class="elt-overlay"><div class="elt-title">Alice in Wonderland</div><div class="elt-btn" id="elt-start-btn">${conf.startText}</div></div>
-    <div id="elt-pause-screen" class="elt-overlay elt-hidden" style="background: rgba(0,0,0,0.6); z-index: 25;"><div class="elt-title" id="elt-pause-lbl">PAUSED</div></div>
+    <div class="elt-top-bar"><div class="elt-panel elt-timer-box"><div class="elt-progress-bg"><div class="elt-progress-bar" id="elt-bar"></div><img src="${conf.rabbitUrl}" class="elt-rabbit" id="elt-rabbit-icon"></div></div><div class="elt-panel" style="margin-left:auto;margin-right:15px"><span id="elt-score-lbl"></span>: <span id="elt-score">0</span></div><div class="elt-panel"><span id="elt-lives">❤️❤️❤️</span></div></div>
+    <div id="elt-pause-btn" title="Pause">⏸️</div><img src="${conf.aliceUrl}" id="elt-al-alice"><div id="elt-al-round-banner">Round 1</div><div id="elt-al-q-banner" style="display:none"></div><div id="elt-al-playarea"></div>
+    <div id="elt-start-screen" class="elt-overlay"><div class="elt-title">${conf.gameTitle}</div><div class="elt-btn" id="elt-start-btn">${conf.startText}</div></div>
+    <div id="elt-pause-screen" class="elt-overlay elt-hidden" style="background:rgba(0,0,0,.6);z-index:25"><div class="elt-title" id="elt-pause-lbl">PAUSED</div></div>
     <div id="elt-over-screen" class="elt-overlay elt-hidden"><div class="elt-title red" id="elt-over-lbl">${conf.loseText}</div><div class="elt-btn" id="elt-try-btn">Try Again</div></div>
     <div id="elt-win-screen" class="elt-overlay elt-hidden"><img src="${conf.aliceWinUrl}" class="elt-end-img"><div class="elt-title">${conf.winText}</div></div>
 <script>
 (function(){
-    const dict = {
-        EN: { score: "Score", try: "Try Again", round: "Round", paused: "PAUSED" },
-        RU: { score: "Очки", try: "Повторить", round: "Раунд", paused: "ПАУЗА" },
-        ES: { score: "Puntos", try: "Reintentar", round: "Ronda", paused: "PAUSA" },
-        FR: { score: "Score", try: "Réessayer", round: "Manche", paused: "PAUSE" },
-        DE: { score: "Punkte", try: "Nochmal", round: "Runde", paused: "PAUSE" },
-        IT: { score: "Punti", try: "Riprova", round: "Round", paused: "PAUSA" },
-        PT: { score: "Pontos", try: "Tentar de novo", round: "Rodada", paused: "PAUSA" },
-        PL: { score: "Punkty", try: "Spróbuj ponownie", round: "Runda", paused: "PAUZA" },
-        TR: { score: "Puan", try: "Tekrar Dene", round: "Tur", paused: "DURAKLATILDI" }
-    };
-    const lang = dict['${conf.lang}'] || dict['EN'];
-    document.getElementById('elt-score-lbl').innerText = lang.score;
-    document.getElementById('elt-try-btn').innerText = lang.try;
-    document.getElementById('elt-pause-lbl').innerText = lang.paused;
-    const RAW_ROUNDS = ${JSON.stringify(conf.roundsData)};
-    const ARTIFACTS = ${JSON.stringify(conf.artifacts)};
-    const MIX_ANSWERS = ${conf.mixAnswers};
-    const USE_TIMER = ${conf.useTimer};
-    const TIME_MAX = ${conf.timeSec};
-    const BASE_SPEED = ${conf.speed};
-    const game = {
-        rounds: [], currentRoundIdx: 0, currentQIdx: 0, score: 0, lives: 3, time: TIME_MAX, timerInt: null,
-        isPlaying: false, isPaused: false, roundStartScore: 0,
-        area: document.getElementById('elt-al-playarea'), pauseBtn: document.getElementById('elt-pause-btn'),
-        init: function() {
-            RAW_ROUNDS.forEach(r => {
-                let allCorrect = (r.questions || []).map(x => x.c);
-                this.rounds.push({ name: r.name, questions: (r.questions || []).map(q => {
-                    let w = q.w ? [...q.w] : [];
-                    if(MIX_ANSWERS) while(w.length < 3) {
-                        let rand = allCorrect[Math.floor(Math.random() * allCorrect.length)];
-                        if(rand !== q.c && !w.includes(rand)) w.push(rand); else if(w.length === 0) w.push("?"); else break;
-                    }
-                    return { q: q.q, c: q.c, w: w };
-                })});
-            });
-            document.getElementById('elt-start-btn').addEventListener('click', () => this.startGame());
-            document.getElementById('elt-try-btn').addEventListener('click', () => this.resetGame());
-            this.pauseBtn.addEventListener('click', () => this.togglePause());
-        },
-        updateUI: function() {
-            document.getElementById('elt-score').innerText = this.score;
-            document.getElementById('elt-lives').innerText = "❤️".repeat(this.lives) || "💔";
-            if(USE_TIMER) {
-                let pct = (this.time / TIME_MAX) * 100;
-                document.getElementById('elt-bar').style.width = \`\${pct}%\`;
-                document.getElementById('elt-rabbit-icon').style.left = \`\${100 - pct}%\`;
-            }
-        },
-        togglePause: function() {
-            if (!this.isPlaying && !this.isPaused) return; this.isPaused = !this.isPaused;
-            this.pauseBtn.innerText = this.isPaused ? "▶️" : "⏸️";
-            this.area.classList.toggle('elt-paused', this.isPaused);
-            document.getElementById('elt-pause-screen').classList.toggle('elt-hidden', !this.isPaused);
-        },
-        startGame: function() {
-            document.getElementById('elt-start-screen').classList.add('elt-hidden');
-            this.currentRoundIdx = this.currentQIdx = this.score = this.roundStartScore = 0; this.lives = 3; this.isPaused = false;
-            this.pauseBtn.innerText = "⏸️"; this.area.classList.remove('elt-paused');
-            document.getElementById('elt-pause-screen').classList.add('elt-hidden');
-            this.updateUI(); this.showRoundBanner();
-        },
-        resetGame: function() {
-            document.getElementById('elt-over-screen').classList.add('elt-hidden');
-            this.currentQIdx = 0; this.score = this.roundStartScore; this.lives = 3; this.isPaused = false;
-            this.pauseBtn.innerText = "⏸️"; this.area.classList.remove('elt-paused');
-            document.getElementById('elt-pause-screen').classList.add('elt-hidden');
-            this.updateUI(); this.showRoundBanner();
-        },
-        showRoundBanner: function() {
-            this.isPlaying = false; clearInterval(this.timerInt);
-            document.getElementById('elt-al-q-banner').style.display = 'none'; this.pauseBtn.classList.remove('elt-active');
-            this.area.innerHTML = ''; this.roundStartScore = this.score;
-            let rb = document.getElementById('elt-al-round-banner');
-            rb.innerText = this.rounds[this.currentRoundIdx].name || \`\${lang.round} \${this.currentRoundIdx + 1}\`;
-            rb.style.opacity = 1;
-            setTimeout(() => {
-                rb.style.opacity = 0; this.currentQIdx = 0; this.isPlaying = true;
-                document.getElementById('elt-al-q-banner').style.display = 'block'; this.pauseBtn.classList.add('elt-active');
-                this.showQuestion();
-            }, 2000);
-        },
-        startTimer: function() {
-            clearInterval(this.timerInt);
-            this.timerInt = setInterval(() => {
-                if(!this.isPlaying || this.isPaused) return; this.time--; this.updateUI();
-                if(this.time <= 0) {
-                    clearInterval(this.timerInt); this.isPlaying = false; this.lives = 0; this.updateUI();
-                    this.pauseBtn.classList.remove('elt-active');
-                    document.getElementById('elt-over-screen').classList.remove('elt-hidden');
-                }
-            }, 1000);
-        },
-        showQuestion: function() {
-            if(this.currentQIdx >= this.rounds[this.currentRoundIdx].questions.length) {
-                this.currentRoundIdx++;
-                if(this.currentRoundIdx >= this.rounds.length) return this.win();
-                this.currentQIdx = 0; return this.showRoundBanner();
-            }
-            if(USE_TIMER) { this.time = TIME_MAX; this.updateUI(); this.startTimer(); }
-            let q = this.rounds[this.currentRoundIdx].questions[this.currentQIdx];
-            document.getElementById('elt-al-q-banner').innerText = q.q;
-            let answers = [{t: q.c, correct: true}, ...q.w.sort(()=>0.5-Math.random()).slice(0, 3).map(w => ({t: w, correct: false}))].sort(()=>0.5-Math.random());
-            this.spawnWave(answers);
-        },
-        spawnWave: function(answers) {
-            this.area.innerHTML = ''; let lanes = [10, 35, 60, 85].sort(()=>0.5-Math.random()), delays = [0, 0.8, 1.6, 2.4].sort(()=>0.5-Math.random());
-            let waveImgs = [...ARTIFACTS].sort(()=>0.5-Math.random());
-            answers.forEach((ans, i) => {
-                let el = document.createElement('div'); el.className = 'elt-artifact-wrapper';
-                el.innerHTML = \`<img src="\${waveImgs[i % waveImgs.length]}" class="elt-artifact-img"><div class="elt-artifact-text">\${ans.t}</div>\`;
-                el.style.left = \`\${lanes[i]}%\`; el.style.transform = 'translateX(-50%)';
-                el.style.animation = \`floatUp \${BASE_SPEED + Math.random()}s linear forwards\`; el.style.animationDelay = \`\${delays[i]}s\`;
-                el.onclick = () => {
-                    if(!this.isPlaying || this.isPaused) return;
-                    if(ans.correct) {
-                        this.isPlaying = false; clearInterval(this.timerInt); el.classList.add('elt-explode');
-                        this.score += 100; this.updateUI();
-                        Array.from(this.area.children).forEach(c => { if(c !== el) c.style.opacity = 0; });
-                        setTimeout(() => { this.currentQIdx++; this.isPlaying = true; this.showQuestion(); }, 1000);
-                    } else this.loseLife();
-                };
-                el.addEventListener('animationend', () => { if(this.isPlaying && !this.isPaused && ans.correct && Array.from(this.area.children).includes(el)) this.spawnWave(answers); });
-                this.area.appendChild(el);
-            });
-        },
-        loseLife: function() {
-            this.lives--; this.updateUI();
-            document.getElementById('elt-al-app').style.boxShadow = "inset 0 0 80px red";
-            setTimeout(()=> document.getElementById('elt-al-app').style.boxShadow = "none", 300);
-            if(this.lives <= 0) {
-                this.isPlaying = false; clearInterval(this.timerInt);
-                this.pauseBtn.classList.remove('elt-active');
-                document.getElementById('elt-over-screen').classList.remove('elt-hidden');
-            }
-        },
-        win: function() {
-            this.isPlaying = false; clearInterval(this.timerInt);
-            document.getElementById('elt-al-q-banner').style.display = 'none';
-            this.pauseBtn.classList.remove('elt-active'); this.area.innerHTML = '';
-            document.getElementById('elt-win-screen').classList.remove('elt-hidden');
-        }
-    };
-    game.init();
-})();
-<\/script>
-</div>
-</body>
-</html>`;
+    const dict={EN:{score:"Score",try:"Try Again",round:"Round",paused:"PAUSED"},RU:{score:"Очки",try:"Повторить",round:"Раунд",paused:"ПАУЗА"},ES:{score:"Puntos",try:"Reintentar",round:"Ronda",paused:"PAUSA"},FR:{score:"Score",try:"Réessayer",round:"Manche",paused:"PAUSE"},DE:{score:"Punkte",try:"Nochmal",round:"Runde",paused:"PAUSE"},IT:{score:"Punti",try:"Riprova",round:"Round",paused:"PAUSA"},PT:{score:"Pontos",try:"Tentar de novo",round:"Rodada",paused:"PAUSA"},PL:{score:"Punkty",try:"Spróbuj ponownie",round:"Runda",paused:"PAUZA"},TR:{score:"Puan",try:"Tekrar Dene",round:"Tur",paused:"DURAKLATILDI"}};
+    const lang=dict['${conf.lang}']||dict.EN;
+    document.getElementById('elt-score-lbl').innerText=lang.score;document.getElementById('elt-try-btn').innerText=lang.try;document.getElementById('elt-pause-lbl').innerText=lang.paused;
+    const RAW_ROUNDS=${JSON.stringify(conf.roundsData)},ARTIFACTS=${JSON.stringify(conf.artifacts)},MIX_ANSWERS=${conf.mixAnswers},USE_TIMER=${conf.useTimer},TIME_MAX=${conf.timeSec},BASE_SPEED=${conf.speed};
+    const game={rounds:[],currentRoundIdx:0,currentQIdx:0,score:0,lives:3,time:TIME_MAX,timerInt:null,isPlaying:!1,isPaused:!1,roundStartScore:0,area:document.getElementById('elt-al-playarea'),pauseBtn:document.getElementById('elt-pause-btn'),
+    init:function(){RAW_ROUNDS.forEach(t=>{let e=(t.questions||[]).map(t=>t.c);this.rounds.push({name:t.name,questions:(t.questions||[]).map(t=>{let n=t.w?[...t.w]:[];if(MIX_ANSWERS)for(;n.length<3;){let i=e[Math.floor(Math.random()*e.length)];if(i!==t.c&&!n.includes(i))n.push(i);else{if(0!==n.length)break;n.push("?")}}return{q:t.q,c:t.c,w:n}})})}),document.getElementById('elt-start-btn').addEventListener('click',()=>this.startGame()),document.getElementById('elt-try-btn').addEventListener('click',()=>this.resetGame()),this.pauseBtn.addEventListener('click',()=>this.togglePause())},
+    updateUI:function(){document.getElementById('elt-score').innerText=this.score,document.getElementById('elt-lives').innerText="❤️".repeat(this.lives)||"💔",USE_TIMER&&(document.getElementById('elt-bar').style.width=\`\${this.time/TIME_MAX*100}%\`,document.getElementById('elt-rabbit-icon').style.left=\`\${100-this.time/TIME_MAX*100}%\`)},
+    togglePause:function(){this.isPlaying||this.isPaused?(this.isPaused=!this.isPaused,this.pauseBtn.innerText=this.isPaused?"▶️":"⏸️",this.area.classList.toggle('elt-paused',this.isPaused),document.getElementById('elt-pause-screen').classList.toggle('elt-hidden',!this.isPaused)):void 0},
+    startGame:function(){document.getElementById('elt-start-screen').classList.add('elt-hidden'),this.currentRoundIdx=this.currentQIdx=this.score=this.roundStartScore=0,this.lives=3,this.isPaused=!1,this.pauseBtn.innerText="⏸️",this.area.classList.remove('elt-paused'),document.getElementById('elt-pause-screen').classList.add('elt-hidden'),this.updateUI(),this.showRoundBanner()},
+    resetGame:function(){document.getElementById('elt-over-screen').classList.add('elt-hidden'),this.currentQIdx=0,this.score=this.roundStartScore,this.lives=3,this.isPaused=!1,this.pauseBtn.innerText="⏸️",this.area.classList.remove('elt-paused'),document.getElementById('elt-pause-screen').classList.add('elt-hidden'),this.updateUI(),this.showRoundBanner()},
+    showRoundBanner:function(){this.isPlaying=!1,clearInterval(this.timerInt),document.getElementById('elt-al-q-banner').style.display='none',this.pauseBtn.classList.remove('elt-active'),this.area.innerHTML='',this.roundStartScore=this.score;let t=document.getElementById('elt-al-round-banner');t.innerText=this.rounds[this.currentRoundIdx].name||\`\${lang.round} \${this.currentRoundIdx+1}\`,t.style.opacity=1,setTimeout(()=>{t.style.opacity=0,this.currentQIdx=0,this.isPlaying=!0,document.getElementById('elt-al-q-banner').style.display='block',this.pauseBtn.classList.add('elt-active'),this.showQuestion()},2e3)},
+    startTimer:function(){clearInterval(this.timerInt),this.timerInt=setInterval(()=>{this.isPlaying&&!this.isPaused&&(this.time--,this.updateUI(),this.time<=0&&(clearInterval(this.timerInt),this.isPlaying=!1,this.lives=0,this.updateUI(),this.pauseBtn.classList.remove('elt-active'),document.getElementById('elt-over-screen').classList.remove('elt-hidden')))},1e3)},
+    showQuestion:function(){if(this.currentQIdx>=this.rounds[this.currentRoundIdx].questions.length)return this.currentRoundIdx++,this.currentRoundIdx>=this.rounds.length?this.win():(this.currentQIdx=0,this.showRoundBanner());USE_TIMER&&(this.time=TIME_MAX,this.updateUI(),this.startTimer());let t=this.rounds[this.currentRoundIdx].questions[this.currentQIdx];document.getElementById('elt-al-q-banner').innerText=t.q;let e=[{t:t.c,correct:!0},...t.w.sort(()=>.5-Math.random()).slice(0,3).map(t=>({t:t,correct:!1}))].sort(()=>.5-Math.random());this.spawnWave(e)},
+    spawnWave:function(t){this.area.innerHTML='';let e=[10,35,60,85].sort(()=>.5-Math.random()),n=[0,.8,1.6,2.4].sort(()=>.5-Math.random()),i=[...ARTIFACTS].sort(()=>.5-Math.random());t.forEach((t,s)=>{let a=document.createElement('div');a.className='elt-artifact-wrapper',a.innerHTML=\`<img src="\${i[s%i.length]}" class="elt-artifact-img"><div class="elt-artifact-text">\${t.t}</div>\`,a.style.left=\`\${e[s]}%\`,a.style.transform='translateX(-50%)',a.style.animation=\`floatUp \${BASE_SPEED+Math.random()}s linear forwards\`,a.style.animationDelay=\`\${n[s]}s\`,a.onclick=()=>{this.isPlaying&&!this.isPaused&&(t.correct?(this.isPlaying=!1,clearInterval(this.timerInt),a.classList.add('elt-explode'),this.score+=100,this.updateUI(),Array.from(this.area.children).forEach(t=>{t!==a&&(t.style.opacity=0)}),setTimeout(()=>{this.currentQIdx++,this.isPlaying=!0,this.showQuestion()},1e3)):this.loseLife())},this.area.appendChild(a)})},
+    loseLife:function(){this.lives--,this.updateUI(),document.getElementById('elt-al-app').style.boxShadow="inset 0 0 80px red",setTimeout(()=>document.getElementById('elt-al-app').style.boxShadow="none",300),this.lives<=0&&(this.isPlaying=!1,clearInterval(this.timerInt),this.pauseBtn.classList.remove('elt-active'),document.getElementById('elt-over-screen').classList.remove('elt-hidden'))},
+    win:function(){this.isPlaying=!1,clearInterval(this.timerInt),document.getElementById('elt-al-q-banner').style.display='none',this.pauseBtn.classList.remove('elt-active'),this.area.innerHTML='',document.getElementById('elt-win-screen').classList.remove('elt-hidden')}};
+    game.init()})();<\/script></body></html>`;
             document.getElementById('generated-code').value = safeHtmlCode;
             document.getElementById('previewFrame').srcdoc = safeHtmlCode;
         }
 
         function copyCode() {
             generateCode(); 
-            const codeArea = document.getElementById('generated-code');
-            codeArea.select();
-            document.execCommand('copy');
-            const btn = document.getElementById('copyBtn');
-            btn.innerText = 'Успешно скопировано!';
-            btn.style.background = '#2ecc71';
-            setTimeout(() => { 
-                btn.innerText = 'Сгенерировать и Скопировать код'; 
-                btn.style.background = 'linear-gradient(90deg, #ff9a9e, #fecfef)';
-            }, 2000);
+            const codeArea = document.getElementById('generated-code'); codeArea.select(); document.execCommand('copy');
+            const btn = document.getElementById('copyBtn'); btn.innerText = 'Успешно скопировано!'; btn.style.background = '#2ecc71';
+            setTimeout(() => { btn.innerText = 'Сгенерировать и Скопировать код'; btn.style.background = 'linear-gradient(90deg, #ff9a9e, #fecfef)'; }, 2000);
         }
 
         let previewTimeout;
-        function debounceGenerate() {
-            clearTimeout(previewTimeout);
-            previewTimeout = setTimeout(generateCode, 500);
-        }
+        function debounceGenerate() { clearTimeout(previewTimeout); setTimeout(generateCode, 500); }
 
         document.querySelectorAll('input, select, textarea').forEach(el => {
             el.addEventListener('input', debounceGenerate);
             el.addEventListener('change', debounceGenerate);
         });
 
-        addRound(); // Init First Round
+        addRound();
     </script>
 </body>
 </html>
