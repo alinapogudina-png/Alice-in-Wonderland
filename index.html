@@ -74,7 +74,7 @@
         <div class="flex-row">
             <div class="form-group" style="flex:1;">
                 <label>Язык интерфейса</label>
-                <select id="uiLang" onchange="updateStartBtnText()">
+                <select id="uiLang" onchange="updateLangTexts()">
                     <option value="EN">English</option><option value="RU">Русский</option><option value="ES">Español</option><option value="FR">Français</option><option value="DE">Deutsch</option><option value="IT">Italiano</option><option value="PT">Português</option><option value="PL">Polski</option><option value="TR">Türkçe</option>
                 </select>
             </div>
@@ -215,8 +215,19 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             <div class="form-group" style="flex:1;"><label>Текст при победе</label><input type="text" id="winText" value="You are just in time!"></div>
             <div class="form-group" style="flex:1;"><label>Текст при проигрыше</label><input type="text" id="loseText" value="GAME OVER"></div>
         </div>
+        <div class="flex-row">
+            <div class="form-group" style="flex:1;"><label>Текст кнопки Try Again</label><input type="text" id="tryAgainText" value="Try Again"></div>
+            <div class="form-group" style="flex:1;"><label>Текст кнопки Play Again</label><input type="text" id="playAgainText" value="Play Again"></div>
+        </div>
         
-        <button id="copyBtn" onclick="copyCode()" style="width: 100%; margin-top:10px;">Сгенерировать и Скопировать код</button>
+        <div class="flex-row" style="margin-top:15px; gap:10px;">
+            <button onclick="saveProject()" style="flex:1; background: linear-gradient(90deg, #a1c4fd, #c2e9fb); color: #1a1a2e;">Сохранить проект</button>
+            <button onclick="document.getElementById('file-project').click()" style="flex:1; background: linear-gradient(90deg, #84fab0, #8fd3f4); color: #1a1a2e;">Загрузить проект</button>
+        </div>
+        <div class="flex-row" style="margin-top:10px; gap:10px;">
+            <button id="copyBtn" onclick="copyCode()" style="flex:1;">Скопировать HTML</button>
+            <button id="copyIframeBtn" onclick="copyIframeCode()" style="flex:1; background: linear-gradient(90deg, #fbc2eb, #a6c1ee); color: #1a1a2e;">Скопировать iframe (для Genially)</button>
+        </div>
         <textarea id="generated-code" readonly placeholder="Здесь появится готовый код..."></textarea>
     </div>
 
@@ -232,9 +243,13 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
     <input type="file" id="file-rabbit" accept="image/*" style="display:none;">
     <input type="file" id="file-alice-win" accept="image/*" style="display:none;">
     <input type="file" id="file-artifacts" accept="image/*" multiple style="display:none;">
+    <input type="file" id="file-project" accept=".json" style="display:none;">
 
     <script>
         const startDict = { EN: "START", RU: "ИГРАТЬ", ES: "JUGAR", FR: "JOUER", DE: "START", IT: "INIZIA", PT: "JOGAR", PL: "START", TR: "BAŞLA" };
+        const tryDict = { EN: "Try Again", RU: "Повторить", ES: "Reintentar", FR: "Réessayer", DE: "Nochmal", IT: "Riprova", PT: "Tentar de novo", PL: "Spróbuj ponownie", TR: "Tekrar Dene" };
+        const winDict = { EN: "Play Again", RU: "Играть снова", ES: "Jugar de nuevo", FR: "Rejouer", DE: "Nochmal spielen", IT: "Gioca ancora", PT: "Jogar de novo", PL: "Zagraj ponownie", TR: "Tekrar Oyna" };
+
         let roundCount = 0;
 
         function fileToBase64(file, callback) {
@@ -267,8 +282,131 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             }
         });
 
-        function updateStartBtnText() {
-            document.getElementById('startBtnText').value = startDict[document.getElementById('uiLang').value] || "START";
+        document.getElementById('file-project').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.gameTitle !== undefined) document.getElementById('gameTitle').value = data.gameTitle;
+                    if (data.uiLang !== undefined) document.getElementById('uiLang').value = data.uiLang;
+                    if (data.startBtnText !== undefined) document.getElementById('startBtnText').value = data.startBtnText;
+                    if (data.tryAgainText !== undefined) document.getElementById('tryAgainText').value = data.tryAgainText;
+                    if (data.playAgainText !== undefined) document.getElementById('playAgainText').value = data.playAgainText;
+                    if (data.flySpeed !== undefined) document.getElementById('flySpeed').value = data.flySpeed;
+                    if (data.useTimer !== undefined) document.getElementById('useTimer').checked = data.useTimer;
+                    if (data.timeSec !== undefined) document.getElementById('timeSec').value = data.timeSec;
+                    if (data.aliceSize !== undefined) {
+                        document.getElementById('aliceSize').value = data.aliceSize;
+                        document.getElementById('aliceSizeLbl').innerText = data.aliceSize;
+                    }
+                    if (data.artifactSize !== undefined) {
+                        document.getElementById('artifactSize').value = data.artifactSize;
+                        document.getElementById('artifactSizeLbl').innerText = data.artifactSize;
+                    }
+                    if (data.startBtnColor !== undefined) document.getElementById('startBtnColor').value = data.startBtnColor;
+                    if (data.useGlow !== undefined) document.getElementById('useGlow').checked = data.useGlow;
+                    if (data.glowColor !== undefined) document.getElementById('glowColor').value = data.glowColor;
+                    if (data.bgUrl !== undefined) document.getElementById('bgUrl').value = data.bgUrl;
+                    if (data.aliceUrl !== undefined) document.getElementById('aliceUrl').value = data.aliceUrl;
+                    if (data.rabbitUrl !== undefined) document.getElementById('rabbitUrl').value = data.rabbitUrl;
+                    if (data.aliceWinUrl !== undefined) document.getElementById('aliceWinUrl').value = data.aliceWinUrl;
+                    if (data.artifactsUrls !== undefined) document.getElementById('artifactsUrls').value = data.artifactsUrls;
+                    if (data.qFontFamily !== undefined) document.getElementById('qFontFamily').value = data.qFontFamily;
+                    if (data.aFontFamily !== undefined) document.getElementById('aFontFamily').value = data.aFontFamily;
+                    if (data.qColor !== undefined) document.getElementById('qColor').value = data.qColor;
+                    if (data.qBgColor !== undefined) document.getElementById('qBgColor').value = data.qBgColor;
+                    if (data.aColor !== undefined) document.getElementById('aColor').value = data.aColor;
+                    if (data.aBgColor !== undefined) document.getElementById('aBgColor').value = data.aBgColor;
+                    if (data.qFontSize !== undefined) {
+                        document.getElementById('qFontSize').value = data.qFontSize;
+                        document.getElementById('qSizeLbl').innerText = data.qFontSize;
+                    }
+                    if (data.aFontSize !== undefined) {
+                        document.getElementById('aFontSize').value = data.aFontSize;
+                        document.getElementById('aSizeLbl').innerText = data.aFontSize;
+                    }
+                    if (data.mixAnswers !== undefined) document.getElementById('mixAnswers').checked = data.mixAnswers;
+                    if (data.winText !== undefined) document.getElementById('winText').value = data.winText;
+                    if (data.loseText !== undefined) document.getElementById('loseText').value = data.loseText;
+
+                    if (Array.isArray(data.rounds)) {
+                        document.getElementById('roundsContainer').innerHTML = '';
+                        roundCount = 0;
+                        data.rounds.forEach(r => {
+                            addRound(r.name, r.qList, r.aList);
+                        });
+                    }
+                    debounceGenerate();
+                    event.target.value = '';
+                } catch (err) {
+                    alert('Ошибка при чтении файла проекта: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function saveProject() {
+            const rounds = [];
+            document.querySelectorAll('.round-box').forEach(rb => {
+                rounds.push({
+                    name: rb.querySelector('.round-name').value || "",
+                    qList: rb.querySelector('.q-list').value || "",
+                    aList: rb.querySelector('.a-list').value || ""
+                });
+            });
+
+            const projectData = {
+                gameTitle: document.getElementById('gameTitle').value,
+                uiLang: document.getElementById('uiLang').value,
+                startBtnText: document.getElementById('startBtnText').value,
+                tryAgainText: document.getElementById('tryAgainText').value,
+                playAgainText: document.getElementById('playAgainText').value,
+                flySpeed: document.getElementById('flySpeed').value,
+                useTimer: document.getElementById('useTimer').checked,
+                timeSec: document.getElementById('timeSec').value,
+                aliceSize: document.getElementById('aliceSize').value,
+                artifactSize: document.getElementById('artifactSize').value,
+                startBtnColor: document.getElementById('startBtnColor').value,
+                useGlow: document.getElementById('useGlow').checked,
+                glowColor: document.getElementById('glowColor').value,
+                bgUrl: document.getElementById('bgUrl').value,
+                aliceUrl: document.getElementById('aliceUrl').value,
+                rabbitUrl: document.getElementById('rabbitUrl').value,
+                aliceWinUrl: document.getElementById('aliceWinUrl').value,
+                artifactsUrls: document.getElementById('artifactsUrls').value,
+                qFontFamily: document.getElementById('qFontFamily').value,
+                aFontFamily: document.getElementById('aFontFamily').value,
+                qColor: document.getElementById('qColor').value,
+                qBgColor: document.getElementById('qBgColor').value,
+                aColor: document.getElementById('aColor').value,
+                aBgColor: document.getElementById('aBgColor').value,
+                qFontSize: document.getElementById('qFontSize').value,
+                aFontSize: document.getElementById('aFontSize').value,
+                mixAnswers: document.getElementById('mixAnswers').checked,
+                winText: document.getElementById('winText').value,
+                loseText: document.getElementById('loseText').value,
+                rounds: rounds
+            };
+
+            const jsonStr = JSON.stringify(projectData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (projectData.gameTitle.trim() || 'alice_game') + '_project.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function updateLangTexts() {
+            const lang = document.getElementById('uiLang').value;
+            document.getElementById('startBtnText').value = startDict[lang] || "START";
+            document.getElementById('tryAgainText').value = tryDict[lang] || "Try Again";
+            document.getElementById('playAgainText').value = winDict[lang] || "Play Again";
             debounceGenerate();
         }
         
@@ -277,20 +415,20 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
         document.getElementById('aliceSize').addEventListener('input', (e) => { document.getElementById('aliceSizeLbl').innerText = e.target.value; });
         document.getElementById('artifactSize').addEventListener('input', (e) => { document.getElementById('artifactSizeLbl').innerText = e.target.value; });
 
-        function addRound() {
+        function addRound(name = null, qList = null, aList = null) {
             if (roundCount >= 5) { alert("Максимум 5 раундов!"); return; }
             roundCount++;
             const div = document.createElement('div');
             div.className = 'round-box';
-            let defaultQ = ["What color is the sky?", "What color is the sun?", "How many days in a week?", "Which animal barks?"].join('\n');
-            let defaultA = ["Blue | Red | Green | Yellow", "Yellow | Purple", "7 | 5 | 10", "Dog | Cat | Cow"].join('\n');
-            if(roundCount > 1) { defaultQ = ["Question 1", "Question 2"].join('\n'); defaultA = ["Ans1 | W1 | W2", "Ans2 | W3 | W4"].join('\n'); }
+            let defaultQ = qList !== null ? qList : (roundCount === 1 ? ["What color is the sky?", "What color is the sun?", "How many days in a week?", "Which animal barks?"].join('\n') : ["Question 1", "Question 2"].join('\n'));
+            let defaultA = aList !== null ? aList : (roundCount === 1 ? ["Blue | Red | Green | Yellow", "Yellow | Purple", "7 | 5 | 10", "Dog | Cat | Cow"].join('\n') : ["Ans1 | W1 | W2", "Ans2 | W3 | W4"].join('\n'));
+            let roundName = name !== null ? name : "";
             div.innerHTML = `
                 <div style="font-weight:700; color:#ff9a9e; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                     <span>Раунд ${roundCount}</span>
                     ${roundCount > 1 ? '<span style="color:#ff4757;cursor:pointer;font-size:12px;" onclick="this.parentElement.parentElement.remove(); roundCount--; debounceGenerate();">× Удалить</span>' : ''}
                 </div>
-                <div class="form-group" style="margin-bottom:10px;"><input type="text" class="round-name" placeholder="Название раунда (необязательно)"></div>
+                <div class="form-group" style="margin-bottom:10px;"><input type="text" class="round-name" placeholder="Название раунда (необязательно)" value="${roundName.replace(/"/g, '&quot;')}"></div>
                 <div class="flex-row" style="align-items: flex-start;">
                     <div class="form-group" style="flex:1; margin-bottom:0;"><label>ВОПРОСЫ (в столбик)</label><textarea class="q-list">${defaultQ}</textarea></div>
                     <div class="form-group" style="flex:1.5; margin-bottom:0;"><label>ОТВЕТЫ (Прав | Нев | Нев)</label><textarea class="a-list">${defaultA}</textarea></div>
@@ -321,6 +459,7 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             return {
                 gameTitle: document.getElementById('gameTitle').value,
                 lang: document.getElementById('uiLang').value, startText: document.getElementById('startBtnText').value,
+                tryAgainText: document.getElementById('tryAgainText').value, playAgainText: document.getElementById('playAgainText').value,
                 speed: parseFloat(document.getElementById('flySpeed').value),
                 bgUrl: document.getElementById('bgUrl').value, aliceUrl: document.getElementById('aliceUrl').value,
                 rabbitUrl: document.getElementById('rabbitUrl').value, aliceWinUrl: document.getElementById('aliceWinUrl').value,
@@ -377,6 +516,7 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
     .elt-title{color:#fff;font-size:40px;font-weight:800;text-shadow:${conf.useGlow?`0 0 20px ${conf.glowColor}`:'none'};margin-bottom:25px}
     .elt-title.red{color:#ff4757;text-shadow:0 0 20px #ff4757}
     .elt-btn{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(90deg,${conf.startBtnColor},#fff)!important;color:#000!important;font-family:'Poppins',sans-serif!important;font-size:24px!important;font-weight:800!important;padding:15px 40px!important;border:none!important;border-radius:30px!important;cursor:pointer;transition:.2s;box-shadow:${conf.useGlow?`0 0 15px ${conf.glowColor}`:'none'}!important;pointer-events:auto;user-select:none}
+    .elt-btn-sm{font-size:16px!important;padding:10px 25px!important;margin-top:15px!important}
     .elt-btn:hover{transform:scale(1.05)}
     .elt-end-img{width:300px!important;max-width:60vw!important;margin-bottom:20px;animation:popIn .6s cubic-bezier(.175,.885,.32,1.275)}
     @keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
@@ -386,25 +526,25 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
     <div id="elt-pause-btn" title="Pause">⏸️</div><img src="${conf.aliceUrl}" id="elt-al-alice"><div id="elt-al-round-banner">Round 1</div><div id="elt-al-q-banner" style="display:none"></div><div id="elt-al-playarea"></div>
     <div id="elt-start-screen" class="elt-overlay"><div class="elt-title">${conf.gameTitle}</div><div class="elt-btn" id="elt-start-btn">${conf.startText}</div></div>
     <div id="elt-pause-screen" class="elt-overlay elt-hidden" style="background:rgba(0,0,0,.6);z-index:25"><div class="elt-title" id="elt-pause-lbl">PAUSED</div></div>
-    <div id="elt-over-screen" class="elt-overlay elt-hidden"><div class="elt-title red" id="elt-over-lbl">${conf.loseText}</div><div class="elt-btn" id="elt-try-btn">Try Again</div></div>
-    <div id="elt-win-screen" class="elt-overlay elt-hidden"><img src="${conf.aliceWinUrl}" class="elt-end-img"><div class="elt-title">${conf.winText}</div></div>
+    <div id="elt-over-screen" class="elt-overlay elt-hidden"><div class="elt-title red" id="elt-over-lbl">${conf.loseText}</div><div class="elt-btn" id="elt-try-btn">${conf.tryAgainText}</div></div>
+    <div id="elt-win-screen" class="elt-overlay elt-hidden"><img src="${conf.aliceWinUrl}" class="elt-end-img"><div class="elt-title">${conf.winText}</div><div class="elt-btn elt-btn-sm" id="elt-win-try-btn">${conf.playAgainText}</div></div>
 <script>
 (function(){
-    const dict={EN:{score:"Score",try:"Try Again",round:"Round",paused:"PAUSED"},RU:{score:"Очки",try:"Повторить",round:"Раунд",paused:"ПАУЗА"},ES:{score:"Puntos",try:"Reintentar",round:"Ronda",paused:"PAUSA"},FR:{score:"Score",try:"Réessayer",round:"Manche",paused:"PAUSE"},DE:{score:"Punkte",try:"Nochmal",round:"Runde",paused:"PAUSE"},IT:{score:"Punti",try:"Riprova",round:"Round",paused:"PAUSA"},PT:{score:"Pontos",try:"Tentar de novo",round:"Rodada",paused:"PAUSA"},PL:{score:"Punkty",try:"Spróbuj ponownie",round:"Runda",paused:"PAUZA"},TR:{score:"Puan",try:"Tekrar Dene",round:"Tur",paused:"DURAKLATILDI"}};
+    const dict={EN:{score:"Score",round:"Round",paused:"PAUSED"},RU:{score:"Очки",round:"Раунд",paused:"ПАУЗА"},ES:{score:"Puntos",round:"Ronda",paused:"PAUSA"},FR:{score:"Score",round:"Manche",paused:"PAUSE"},DE:{score:"Punkte",round:"Runde",paused:"PAUSE"},IT:{score:"Punti",round:"Round",paused:"PAUSA"},PT:{score:"Pontos",round:"Rodada",paused:"PAUSA"},PL:{score:"Punkty",round:"Runda",paused:"PAUZA"},TR:{score:"Puan",round:"Tur",paused:"DURAKLATILDI"}};
     const lang=dict['${conf.lang}']||dict.EN;
-    document.getElementById('elt-score-lbl').innerText=lang.score;document.getElementById('elt-try-btn').innerText=lang.try;document.getElementById('elt-pause-lbl').innerText=lang.paused;
+    document.getElementById('elt-score-lbl').innerText=lang.score;document.getElementById('elt-try-btn').innerText="${conf.tryAgainText}";document.getElementById('elt-win-try-btn').innerText="${conf.playAgainText}";document.getElementById('elt-pause-lbl').innerText=lang.paused;
     const RAW_ROUNDS=${JSON.stringify(conf.roundsData)},ARTIFACTS=${JSON.stringify(conf.artifacts)},MIX_ANSWERS=${conf.mixAnswers},USE_TIMER=${conf.useTimer},TIME_MAX=${conf.timeSec},BASE_SPEED=${conf.speed};
     const game={rounds:[],currentRoundIdx:0,currentQIdx:0,score:0,lives:3,time:TIME_MAX,timerInt:null,isPlaying:!1,isPaused:!1,roundStartScore:0,area:document.getElementById('elt-al-playarea'),pauseBtn:document.getElementById('elt-pause-btn'),
-    init:function(){RAW_ROUNDS.forEach(t=>{let e=(t.questions||[]).map(t=>t.c);this.rounds.push({name:t.name,questions:(t.questions||[]).map(t=>{let n=t.w?[...t.w]:[];if(MIX_ANSWERS)for(;n.length<3;){let i=e[Math.floor(Math.random()*e.length)];if(i!==t.c&&!n.includes(i))n.push(i);else{if(0!==n.length)break;n.push("?")}}return{q:t.q,c:t.c,w:n}})})}),document.getElementById('elt-start-btn').addEventListener('click',()=>this.startGame()),document.getElementById('elt-try-btn').addEventListener('click',()=>this.resetGame()),this.pauseBtn.addEventListener('click',()=>this.togglePause())},
+    init:function(){RAW_ROUNDS.forEach(t=>{let e=(t.questions||[]).map(t=>t.c);this.rounds.push({name:t.name,questions:(t.questions||[]).map(t=>{let n=t.w?[...t.w]:[];if(MIX_ANSWERS)for(;n.length<3;){let i=e[Math.floor(Math.random()*e.length)];if(i!==t.c&&!n.includes(i))n.push(i);else{if(0!==n.length)break;n.push("?")}}return{q:t.q,c:t.c,w:n}})})}),document.getElementById('elt-start-btn').addEventListener('click',()=>this.startGame()),document.getElementById('elt-try-btn').addEventListener('click',()=>this.resetGame()),document.getElementById('elt-win-try-btn').addEventListener('click',()=>this.startGame()),this.pauseBtn.addEventListener('click',()=>this.togglePause())},
     updateUI:function(){document.getElementById('elt-score').innerText=this.score,document.getElementById('elt-lives').innerText="❤️".repeat(this.lives)||"💔",USE_TIMER&&(document.getElementById('elt-bar').style.width=\`\${this.time/TIME_MAX*100}%\`,document.getElementById('elt-rabbit-icon').style.left=\`\${100-this.time/TIME_MAX*100}%\`)},
     togglePause:function(){this.isPlaying||this.isPaused?(this.isPaused=!this.isPaused,this.pauseBtn.innerText=this.isPaused?"▶️":"⏸️",this.area.classList.toggle('elt-paused',this.isPaused),document.getElementById('elt-pause-screen').classList.toggle('elt-hidden',!this.isPaused)):void 0},
-    startGame:function(){document.getElementById('elt-start-screen').classList.add('elt-hidden'),this.currentRoundIdx=this.currentQIdx=this.score=this.roundStartScore=0,this.lives=3,this.isPaused=!1,this.pauseBtn.innerText="⏸️",this.area.classList.remove('elt-paused'),document.getElementById('elt-pause-screen').classList.add('elt-hidden'),this.updateUI(),this.showRoundBanner()},
-    resetGame:function(){document.getElementById('elt-over-screen').classList.add('elt-hidden'),this.currentQIdx=0,this.score=this.roundStartScore,this.lives=3,this.isPaused=!1,this.pauseBtn.innerText="⏸️",this.area.classList.remove('elt-paused'),document.getElementById('elt-pause-screen').classList.add('elt-hidden'),this.updateUI(),this.showRoundBanner()},
+    startGame:function(){document.getElementById('elt-start-screen').classList.add('elt-hidden'),document.getElementById('elt-win-screen').classList.add('elt-hidden'),document.getElementById('elt-over-screen').classList.add('elt-hidden'),this.currentRoundIdx=this.currentQIdx=this.score=this.roundStartScore=0,this.lives=3,this.isPaused=!1,this.pauseBtn.innerText="⏸️",this.area.classList.remove('elt-paused'),document.getElementById('elt-pause-screen').classList.add('elt-hidden'),this.updateUI(),this.showRoundBanner()},
+    resetGame:function(){document.getElementById('elt-over-screen').classList.add('elt-hidden'),document.getElementById('elt-win-screen').classList.add('elt-hidden'),this.currentQIdx=0,this.score=this.roundStartScore,this.lives=3,this.isPaused=!1,this.pauseBtn.innerText="⏸️",this.area.classList.remove('elt-paused'),document.getElementById('elt-pause-screen').classList.add('elt-hidden'),this.updateUI(),this.showRoundBanner()},
     showRoundBanner:function(){this.isPlaying=!1,clearInterval(this.timerInt),document.getElementById('elt-al-q-banner').style.display='none',this.pauseBtn.classList.remove('elt-active'),this.area.innerHTML='',document.getElementById('elt-q-counter').innerText='',this.roundStartScore=this.score;let t=document.getElementById('elt-al-round-banner');t.innerText=this.rounds[this.currentRoundIdx].name||\`\${lang.round} \${this.currentRoundIdx+1}\`,t.style.opacity=1,setTimeout(()=>{t.style.opacity=0,this.currentQIdx=0,this.isPlaying=!0,document.getElementById('elt-al-q-banner').style.display='block',this.pauseBtn.classList.add('elt-active'),this.showQuestion()},2e3)},
     startTimer:function(){clearInterval(this.timerInt),this.timerInt=setInterval(()=>{this.isPlaying&&!this.isPaused&&(this.time--,this.updateUI(),this.time<=0&&(clearInterval(this.timerInt),this.isPlaying=!1,this.lives=0,this.updateUI(),this.pauseBtn.classList.remove('elt-active'),document.getElementById('elt-over-screen').classList.remove('elt-hidden')))},1e3)},
     showQuestion:function(){if(this.currentQIdx>=this.rounds[this.currentRoundIdx].questions.length)return this.currentRoundIdx++,this.currentRoundIdx>=this.rounds.length?this.win():(this.currentQIdx=0,this.showRoundBanner());USE_TIMER&&(this.time=TIME_MAX,this.updateUI(),this.startTimer());let t=this.rounds[this.currentRoundIdx],e=t.questions[this.currentQIdx];document.getElementById('elt-al-q-banner').innerText=e.q,document.getElementById('elt-q-counter').innerText=\`\${this.currentQIdx+1} / \${t.questions.length}\`;let n=[{t:e.c,correct:!0},...e.w.sort(()=>.5-Math.random()).slice(0,3).map(t=>({t:t,correct:!1}))].sort(()=>.5-Math.random());this.spawnWave(n)},
     spawnWave:function(answers){this.area.innerHTML='';let lanes=[10,28,46,64].sort(()=>.5-Math.random()),delays=[0,.8,1.6,2.4].sort(()=>.5-Math.random()),waveImgs=[...ARTIFACTS].sort(()=>.5-Math.random());answers.forEach((ans,i)=>{let el=document.createElement('div');el.className='elt-artifact-wrapper';el.innerHTML=\`<img src="\${waveImgs[i%waveImgs.length]}" class="elt-artifact-img"><div class="elt-artifact-text">\${ans.t}</div>\`;el.style.left=\`\${lanes[i]}%\`;el.style.transform='translateX(-50%)';el.style.animation=\`floatUp \${BASE_SPEED}s linear \${delays[i]}s forwards\`;el.onclick=()=>{if(!this.isPlaying||this.isPaused)return;ans.correct?(this.isPlaying=!1,clearInterval(this.timerInt),el.classList.add('elt-explode'),this.score+=100,this.updateUI(),Array.from(this.area.children).forEach(c=>{c!==el&&(c.style.opacity=0)}),setTimeout(()=>{this.currentQIdx++;this.isPlaying=!0;this.showQuestion()},1e3)):this.loseLife()};el.addEventListener('animationend',()=>{el.remove();if(ans.correct&&this.isPlaying&&!this.isPaused){this.spawnWave(answers)}});this.area.appendChild(el)})},
-    loseLife:function(){this.lives--;this.updateUI();document.getElementById('elt-al-app').style.boxShadow="inset 0 0 80px red";setTimeout(()=>document.getElementById('elt-al-app').style.boxShadow="none",300);if(this.lives<=0){this.isPlaying=!1;clearInterval(this.timerInt);this.pauseBtn.classList.remove('elt-active');document.getElementById('elt-over-screen').classList.remove('elt-hidden')}},
+    loseLife:function(){this.lives--;this.updateUI();document.getElementById('elt-al-app').style.boxShadow="inset 0 0 80px red";setTimeout(()=>document.getElementById('elt-al-app').style.boxShadow="none",300);if(this.lives<=0){this.isPlaying=!1;clearInterval(this.timerInt);this.pauseBtn.classList.remove('elt-active'),document.getElementById('elt-over-screen').classList.remove('elt-hidden')}},
     win:function(){this.isPlaying=!1,clearInterval(this.timerInt),document.getElementById('elt-al-q-banner').style.display='none',document.getElementById('elt-q-counter').innerText='',this.pauseBtn.classList.remove('elt-active'),this.area.innerHTML='',document.getElementById('elt-win-screen').classList.remove('elt-hidden')}};
     game.init()})();<\/script></body></html>`;
             document.getElementById('generated-code').value = safeHtmlCode;
@@ -415,7 +555,23 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             generateCode(); 
             const codeArea = document.getElementById('generated-code'); codeArea.select(); document.execCommand('copy');
             const btn = document.getElementById('copyBtn'); btn.innerText = 'Успешно скопировано!'; btn.style.background = '#2ecc71';
-            setTimeout(() => { btn.innerText = 'Сгенерировать и Скопировать код'; btn.style.background = 'linear-gradient(90deg, #ff9a9e, #fecfef)'; }, 2000);
+            setTimeout(() => { btn.innerText = 'Скопировать HTML'; btn.style.background = 'linear-gradient(90deg, #ff9a9e, #fecfef)'; }, 2000);
+        }
+
+        function copyIframeCode() {
+            generateCode();
+            const htmlCode = document.getElementById('generated-code').value;
+            const iframeCode = `<iframe srcdoc="${htmlCode.replace(/"/g, '&quot;')}" width="100%" height="600" frameborder="0" allowfullscreen style="width: 100%; height: 600px; border: none;"></iframe>`;
+            
+            const tempArea = document.createElement('textarea');
+            tempArea.value = iframeCode;
+            document.body.appendChild(tempArea);
+            tempArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempArea);
+
+            const btn = document.getElementById('copyIframeBtn'); btn.innerText = 'iframe скопирован!'; btn.style.background = '#2ecc71';
+            setTimeout(() => { btn.innerText = 'Скопировать iframe (для Genially)'; btn.style.background = 'linear-gradient(90deg, #fbc2eb, #a6c1ee)'; }, 2000);
         }
 
         let previewTimeout;
