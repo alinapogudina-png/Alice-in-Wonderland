@@ -225,7 +225,7 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             <button onclick="document.getElementById('file-project').click()" style="flex:1; background: linear-gradient(90deg, #84fab0, #8fd3f4); color: #1a1a2e;">Загрузить проект</button>
         </div>
         <div class="flex-row" style="margin-top:10px; gap:10px;">
-            <button id="copyBtn" onclick="copyCode()" style="flex:1;">Скопировать HTML</button>
+            <button id="downloadHtmlBtn" onclick="downloadHtmlFile()" style="flex:1;">Скачать HTML файл</button>
             <button id="copyIframeBtn" onclick="copyIframeCode()" style="flex:1; background: linear-gradient(90deg, #fbc2eb, #a6c1ee); color: #1a1a2e;">Скопировать iframe (для Genially)</button>
         </div>
         <textarea id="generated-code" readonly placeholder="Здесь появится готовый код..."></textarea>
@@ -551,11 +551,23 @@ https://i.postimg.cc/DZTxgRrK/9.png</textarea>
             document.getElementById('previewFrame').srcdoc = safeHtmlCode;
         }
 
-        function copyCode() {
+        function downloadHtmlFile() {
             generateCode(); 
-            const codeArea = document.getElementById('generated-code'); codeArea.select(); document.execCommand('copy');
-            const btn = document.getElementById('copyBtn'); btn.innerText = 'Успешно скопировано!'; btn.style.background = '#2ecc71';
-            setTimeout(() => { btn.innerText = 'Скопировать HTML'; btn.style.background = 'linear-gradient(90deg, #ff9a9e, #fecfef)'; }, 2000);
+            const htmlContent = document.getElementById('previewFrame').srcdoc;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (document.getElementById('gameTitle').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '_') || 'alice_game') + '.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            const btn = document.getElementById('downloadHtmlBtn');
+            btn.innerText = 'Файл скачан!';
+            btn.style.background = '#2ecc71';
+            setTimeout(() => { btn.innerText = 'Скачать HTML файл'; btn.style.background = ''; }, 2000);
         }
 
         function copyIframeCode() {
